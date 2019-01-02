@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigToolV2", "ConfigToolV2\ConfigToolV2.csproj", "{BA9F00FE-30C2-4A60-9943-2535EE8F76B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigToolLibrary2", "ConfigToolLibrary2\ConfigToolLibrary2.csproj", "{575AFAC8-793E-4371-B91B-CF2A44BBC49C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA9F00FE-30C2-4A60-9943-2535EE8F76B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA9F00FE-30C2-4A60-9943-2535EE8F76B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA9F00FE-30C2-4A60-9943-2535EE8F76B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA9F00FE-30C2-4A60-9943-2535EE8F76B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{575AFAC8-793E-4371-B91B-CF2A44BBC49C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{575AFAC8-793E-4371-B91B-CF2A44BBC49C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{575AFAC8-793E-4371-B91B-CF2A44BBC49C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{575AFAC8-793E-4371-B91B-CF2A44BBC49C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1405EDF9-DBC7-452F-8A17-C74E395C1A3A}
+	EndGlobalSection
+EndGlobal
