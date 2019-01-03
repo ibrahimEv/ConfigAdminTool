@@ -18,7 +18,7 @@ namespace ConfigToolLibrary2
         public Utils Util { get; set; }
         public IDictionary<string,object> LatestObject { get; set; }
         public int PrimaryKey { get; set; }
-        private string OldSqlFileNextLine;
+        public string OldSqlFileNextLine { get; set; }
 
         public MergeFile()
         {
@@ -37,13 +37,13 @@ namespace ConfigToolLibrary2
             }
 
 
-            Console.WriteLine("Merging started");
+            Console.WriteLine();
             TotalTime = Stopwatch.StartNew();
-
             for (var index = 0; index < OldSqlFile.Count; index++)
             {
                 foreach (var latLine in NewFileChanges)
                 {
+                    
                     if (latLine != Keywords.EMPTY_LINE && OldSqlFile[index] != Keywords.EMPTY_LINE)
                     {
                         OldSqlFileNextLine = index < OldSqlFile.Count - 1 ? OldSqlFile[index + 1] : Keywords.EMPTY_LINE;
@@ -56,8 +56,7 @@ namespace ConfigToolLibrary2
                             var NewLine =  Utils.ConvertToString(latestObj);
 
                             NewSqlFile.Add(NewLine);
-                            Console.WriteLine(NewLine);
-
+                            
                             if (index < OldSqlFile.Count - 1) index++;
                              DuplicateLatFile.Remove(latLine);
                         }
@@ -76,7 +75,6 @@ namespace ConfigToolLibrary2
                                 PrimaryKey = Convert.ToInt32(Utils.StringSplitter(NewSqlFile[s])[0]);
                                 NewSqlFile[s] = NewSqlFile[s] + Keywords.UNION_ALL;
                                 LatestObject = Factory.GetDynamicObject(NewSqlFile[s]);
-                                //Console.WriteLine(NewSqlFile[s]);
                                 break;
                             }
                         }
@@ -98,23 +96,23 @@ namespace ConfigToolLibrary2
                                 {
                                      AddNewLine = Utils.ConvertToString(AddlatestObj);
                                 }
-                               
+                              
                                 NewSqlFile.Add(AddNewLine);
-
                             }
-                                //NewSqlFile.Add(t);
-                            //Console.WriteLine(t);
+                                
                         }
                         NewSqlFile.Add(Keywords.EMPTY_LINE);
                     }
                 }
 
                 NewSqlFile.Add(OldSqlFile[index]);
+                 Console.Write("\r{0}%",((index * 100) / OldSqlFile.Count)+1);
+
 
             }
             TotalTime.Stop();
             var time = TotalTime.ElapsedMilliseconds;
-            Console.WriteLine("Merging Finished");
+            Console.WriteLine();
             Console.WriteLine("Total Time Required  --  " + time + " milliseconds");
             Console.WriteLine("Total Time Required  --  " + time / 100 + " secs");
             return NewSqlFile;
