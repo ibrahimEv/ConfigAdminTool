@@ -8,7 +8,7 @@ namespace ConfigToolLibrary2
 {
     public class Common
     {
-        public static Dictionary<string, int> CompareColumnsOfSqlAndExcel(List<string> columnNamesSql, List<string> columnNamesExcel)
+        public static Dictionary<string, int> GetColumnMappings(List<string> columnNamesSql, List<string> columnNamesExcel)
         {
             SpellChecker checker = new SpellChecker();
             checker.AddWordsToDictionary(columnNamesSql);
@@ -16,7 +16,7 @@ namespace ConfigToolLibrary2
 
             for (int i = 0; i < columnNamesExcel.Count; i++)
             {
-                if (columnNamesExcel[i].Trim() == columnNamesSql[i].Trim())
+                if (columnNamesSql.Count > i && columnNamesExcel[i].Trim() == columnNamesSql[i].Trim())
                 {
                     columnMapping.Add(columnNamesSql[i].Trim(), i + 1);
                     checker.RemoveWordFromDictionary(columnNamesSql[i]);
@@ -27,9 +27,9 @@ namespace ConfigToolLibrary2
                     string spellCheck = checker.CheckAndGetSpelling(columnNamesExcel[i]);
                     if (!string.IsNullOrEmpty(spellCheck))
                     {
-                        columnMapping.Add(columnNamesSql[i].Trim(), i + 1);
-                        checker.RemoveWordFromDictionary(columnNamesSql[i]);
-                        columnNamesSql[i] = string.Empty;
+                        columnMapping.Add(spellCheck, i + 1);
+                        checker.RemoveWordFromDictionary(spellCheck);
+                        columnNamesSql[columnNamesSql.IndexOf(spellCheck)] = string.Empty;
                     }
                 }
             }

@@ -11,6 +11,74 @@ namespace ConfigToolLibrary2
     public class ExcelHelper
     {
         public Excel.Worksheet CurrentWorksheet { get; set; }
+        public Dictionary<string, Excel.Worksheet> WorksheetsNames { get; set; }
+
+
+        public void LoadWorkBook(string excelPath)
+        {
+            Excel.Application xlApp;
+            Excel.Workbook xlWorkBook;
+            WorksheetsNames = new Dictionary<string, Excel.Worksheet>();
+            xlApp = new Excel.Application();
+            xlWorkBook = xlApp.Workbooks.Open(excelPath, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
+            foreach (Excel.Worksheet worksheet in xlWorkBook.Worksheets)
+            {
+                WorksheetsNames.Add(worksheet.Name, worksheet);
+            }
+        }
+
+        public List<string> GetAllWorkSheetNames()
+        {
+            return WorksheetsNames.Values.Select(w => w.Name).ToList();
+        }
+
+        public string SelectWorkSheet(int index)
+        {
+            CurrentWorksheet = WorksheetsNames.Values.ElementAt(index);
+            return CurrentWorksheet.Name;
+        }
+
+        public List<string> GetColumnNames()
+        {
+            Excel.Range range = CurrentWorksheet.UsedRange;
+            //read first row for column
+            int cl = range.Columns.Count;
+            List<string> colNames = new List<string>();
+            for (int cCnt = 1; cCnt <= cl; cCnt++)
+            {
+                if ((range.Cells[1, cCnt] as Excel.Range).Value2 == null) break;
+
+                colNames.Add((range.Cells[1, cCnt] as Excel.Range).Value2);
+            }
+
+            return colNames;
+        }
+
+        public List<string> GetSqlFromCurrentSheet(Dictionary<string, int> columnMapping)
+        {
+            List<string> sqlQueries = new List<string>();
+            Excel.Range range = CurrentWorksheet.UsedRange;
+            int rw = range.Rows.Count;
+
+            for (int rCnt = 2; rCnt <= rw; rCnt++)
+            {
+                string sqlQuery = "SELECT ";
+                foreach (var col in columnMapping)
+                {
+                    sqlQuery += $"{(range.Cells[rCnt, col.Value] as Excel.Range).Value} AS {col.Key}, ";
+                }
+                sqlQuery = sqlQuery.TrimEnd(new[] { ',', ' ' });
+                sqlQuery += " UNION ALL";
+                sqlQueries.Add(sqlQuery);
+            }
+
+            return sqlQueries;
+        }
+
+        //==========================================================================//
+
+        #region OldCode
+
         public List<string> ExcelOperations(string excelPath)
         {
             Dictionary<string, Excel.Worksheet> temp = GetAllWorkSheet(excelPath);
@@ -36,7 +104,6 @@ namespace ConfigToolLibrary2
 
             return dictSheetsName;
         }
-
         public Dictionary<string, int> GetColumnMapping(Excel.Worksheet worksheet)
         {
             Excel.Range range;
@@ -117,20 +184,9 @@ namespace ConfigToolLibrary2
             return worksheetsNames.Keys.ElementAt(num);
         }
 
-        public List<string> GetColumnNames()
-        {
-            Excel.Range range = CurrentWorksheet.UsedRange;
-            //read first row for column
-            int cl = range.Columns.Count;
-            List<string> colNames = new List<string>();
-            for (int cCnt = 1; cCnt <= cl; cCnt++)
-            {
-                if ((range.Cells[1, cCnt] as Excel.Range).Value2 == null) break;
+        #endregion
 
-                colNames.Add((range.Cells[1, cCnt] as Excel.Range).Value2);
-            }
 
-            return colNames;
-        }
+
     }
 }

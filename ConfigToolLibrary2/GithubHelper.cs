@@ -74,7 +74,7 @@ namespace ConfigToolLibrary2
             string path = String.Empty;
             //check for one or more file
             if (responSearchCode.TotalCount > 0)
-                path = responSearchCode.Items[0].Path;
+                path = responSearchCode.Items.Single(file=>file.Name.StartsWith("Merge")).Path;
             return path;
         }
 
