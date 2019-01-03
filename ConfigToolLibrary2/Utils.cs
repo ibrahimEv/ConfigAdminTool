@@ -13,7 +13,7 @@ namespace ConfigToolLibrary2
         private  string[] PrevNextWords;
         public static string[] StringSplitter(string line)
         {
-            string[] separatingChars = {"SELECT", "AS", "UNION", "ALL", " " };
+            string[] separatingChars = {"SELECT", "AS", "UNION", "ALL", " ","," };
             return line.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries);
         }
 
@@ -53,9 +53,10 @@ namespace ConfigToolLibrary2
             string newLine= Keywords.SELECT;
             foreach (var obj in latestObj)
             {
-                newLine = newLine + " " + obj.Value + " AS " + obj.Key;
+                newLine = newLine + " " + obj.Value + " AS " + obj.Key+",";
             }
 
+            newLine = newLine.TrimEnd(',');
             newLine = newLine +" "+ Keywords.UNION_ALL;
             return newLine;
         }

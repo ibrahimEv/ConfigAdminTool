@@ -88,7 +88,17 @@ namespace ConfigToolLibrary2
                                 DuplicateLatFile[x] = DuplicateLatFile[x].Replace(Keywords.SELECT, Keywords.SELECT + " " + PrimaryKey);
                                 var AddNewobj = Factory.GetDynamicObject(DuplicateLatFile[x]);
                                 var AddlatestObj = Manipulator.GetLatestChanges(LatestObject, AddNewobj);
-                                var AddNewLine = Utils.ConvertToString(AddlatestObj);
+                                string AddNewLine;
+                                if (x==DuplicateLatFile.Count - 1)
+                                {
+                                     AddNewLine = Utils.ConvertToString(AddlatestObj);
+                                    AddNewLine = AddNewLine.Replace(Keywords.UNION_ALL, "");
+                                }
+                                else
+                                {
+                                     AddNewLine = Utils.ConvertToString(AddlatestObj);
+                                }
+                               
                                 NewSqlFile.Add(AddNewLine);
 
                             }
