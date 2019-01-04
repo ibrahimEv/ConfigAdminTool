@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NLog;
 
 namespace ConfigToolLibrary2
 {
@@ -11,9 +12,10 @@ namespace ConfigToolLibrary2
         private static GitHubClient _client;
         private static long _repositoryId;
         private string _shaHeadBranch;
-        public GithubHelper(long repositoryId, string githubUserToken)
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        public GithubHelper(string repositoryName, string githubUserToken)
         {
-            _repositoryId = repositoryId;
+            _repositoryId = GetRepositoryId(repositoryName);
             _client = new GitHubClient(new ProductHeaderValue("ConfigAdmin"))
             {
                 Credentials = new Credentials(githubUserToken)
@@ -21,69 +23,141 @@ namespace ConfigToolLibrary2
         }
         public async Task<List<string>> GetContentOfFile(string filePath, string branchName)
         {
-            Console.WriteLine("Getting content from Github.");
+            try
+            {
+                logger.Log(LogLevel.Debug, $"Getting content from Github.");
 
-            IReadOnlyList<RepositoryContent> response = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, filePath, branchName);
-            List<string> strList = response[0].Content.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.None).ToList();
+                IReadOnlyList<RepositoryContent> response = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, filePath, branchName);
+                List<string> strList = response[0].Content.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.None).ToList();
 
-            return strList;
+                return strList;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in GetContentOfFile, filePath : {filePath}, branchName : {branchName}. Exception : {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<string> CreateBranch(string mainBranchName, string newBranchName)
         {
-            Branch mainBranch = await _client.Repository.Branch.Get(_repositoryId, mainBranchName);
-            _shaHeadBranch = mainBranch.Commit.Sha;
+            try
+            {
+                Branch mainBranch = await _client.Repository.Branch.Get(_repositoryId, mainBranchName);
+                _shaHeadBranch = mainBranch.Commit.Sha;
 
-            var ref1 = new NewReference("refs/heads/" + newBranchName, _shaHeadBranch);
-            var branch = await _client.Git.Reference.Create(_repositoryId, ref1);
-            return branch.Ref;
+                logger.Log(LogLevel.Debug, $"Creating branch mainBranchName : {mainBranchName}, newBranchName : {newBranchName}");
+                var ref1 = new NewReference("refs/heads/" + newBranchName, _shaHeadBranch);
+                var branch = await _client.Git.Reference.Create(_repositoryId, ref1);
+                return branch.Ref;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in CreateBranch, mainBranchName : {mainBranchName}, newBranchName : {newBranchName}. Exception : {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<string> UpdateFile(string filePath, string updatedContent, string branchName)
         {
-            //check if sha not null
-            IReadOnlyList<RepositoryContent> contentsResponse = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, filePath, branchName);
-            string shaOfFile = contentsResponse[0].Sha;
+            try
+            {
+                IReadOnlyList<RepositoryContent> contentsResponse = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, filePath, branchName);
+                string shaOfFile = contentsResponse[0].Sha;
 
-            var updateFileRequest = new UpdateFileRequest("Update File", updatedContent, shaOfFile, branchName);
-            var updateFileResponse = await _client.Repository.Content.UpdateFile(_repositoryId, filePath, updateFileRequest);
+                logger.Log(LogLevel.Debug, $"Updating file, filePath : {filePath}, branchName : {branchName}");
+                var updateFileRequest = new UpdateFileRequest("Update File", updatedContent, shaOfFile, branchName);
+                var updateFileResponse = await _client.Repository.Content.UpdateFile(_repositoryId, filePath, updateFileRequest);
 
-            return updateFileResponse.Content.Name;
+                return updateFileResponse.Content.Name;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in UpdateFile, filePath : {filePath}, branchName : {branchName}. Exception : {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<int> CreatePullRequest(string pullRequestTitle, string baseBranchName, string newBranchName)
         {
-            var newPullRequest = new NewPullRequest(pullRequestTitle, newBranchName, baseBranchName);
-            var pullRequestResponse = await _client.PullRequest.Create(_repositoryId, newPullRequest);
+            try
+            {
+                var newPullRequest = new NewPullRequest(pullRequestTitle, newBranchName, baseBranchName);
+                logger.Log(LogLevel.Debug, $"Creating pull request , pullRequestTitle : {pullRequestTitle}, baseBranchName : {baseBranchName}, newBranchName : {newBranchName}");
+                var pullRequestResponse = await _client.PullRequest.Create(_repositoryId, newPullRequest);
 
-            return pullRequestResponse.Number;
+                return pullRequestResponse.Number;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in CreatePullRequest, pullRequestTitle : {pullRequestTitle}, baseBranchName : {baseBranchName}, newBranchName : {newBranchName}. Exception : {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<int> AddReviewerToPullRequest(int prNumber, List<string> reviewerList)
         {
-            var prReview = new PullRequestReviewRequest(reviewerList);
-            var t = await _client.PullRequest.ReviewRequest.Create(_repositoryId, prNumber, prReview);
+            try
+            {
+                var prReview = new PullRequestReviewRequest(reviewerList);
+                logger.Log(LogLevel.Debug, $"Adding Reviewer To Pull Request, prNumber : {prNumber}, reviewers : {string.Join(",", reviewerList)}");
+                var t = await _client.PullRequest.ReviewRequest.Create(_repositoryId, prNumber, prReview);
 
-            return t.Number;
+                return t.Number;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in AddReviewerToPullRequest, prNumber : {prNumber}, reviewers : {string.Join(",", reviewerList)}. Exception : {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<string> GetGithubFilePath(string tableName, string repositoryName)
         {
-            var searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
-            var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
-            string path = String.Empty;
-            //check for one or more file
-            if (responSearchCode.TotalCount > 0)
-                path = responSearchCode.Items.Single(file=>file.Name.StartsWith("Merge")).Path;
-            return path;
+            try
+            {
+                var searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
+                logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
+                var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
+                string path = String.Empty;
+                //check for one or more file
+                if (responSearchCode.TotalCount > 0)
+                    path = responSearchCode.Items.Single(file => file.Name.Equals($"Merge_{tableName}.sql")).Path;
+                return path;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}. Exception : {ex.Message}");
+                throw;
+            }
         }
 
         public List<string> GetColumnNames(List<string> fileContent)
         {
-            string insertLine = fileContent.First(x => x.StartsWith("INSERT INTO"));
-            insertLine = insertLine.Substring(insertLine.IndexOf('(')).Trim('(', ')');
-            return insertLine.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            try
+            {
+                string insertLine = fileContent.First(x => x.StartsWith("INSERT INTO"));
+                insertLine = insertLine.Substring(insertLine.IndexOf('(')).Trim('(', ')');
+                return insertLine.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in GetColumnNames. Exception : {ex.Message}");
+                throw;
+            }
         }
+
+        public int GetRepositoryId(string repositoryName)
+        {
+            switch (repositoryName)
+            {
+                case "IdentifiData": return Constants.IdentifiDataRepsitoryId;
+                case "user-admin-data": return Constants.UserAdminDataRepsitoryId;
+            }
+
+            throw new Exception($"Invalid repository name : {repositoryName}");
+        }
+
         public static async Task<string> CreateBranch2()
         {
 

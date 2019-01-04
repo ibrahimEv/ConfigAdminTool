@@ -1,8 +1,7 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Dynamic;
 using System.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -12,18 +11,28 @@ namespace ConfigToolLibrary2
     {
         public Excel.Worksheet CurrentWorksheet { get; set; }
         public Dictionary<string, Excel.Worksheet> WorksheetsNames { get; set; }
-
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        //private static Logger ActionLogger = LogManager.GetLogger("Execution");
 
         public void LoadWorkBook(string excelPath)
         {
             Excel.Application xlApp;
             Excel.Workbook xlWorkBook;
             WorksheetsNames = new Dictionary<string, Excel.Worksheet>();
-            xlApp = new Excel.Application();
-            xlWorkBook = xlApp.Workbooks.Open(excelPath, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-            foreach (Excel.Worksheet worksheet in xlWorkBook.Worksheets)
+            try
             {
-                WorksheetsNames.Add(worksheet.Name, worksheet);
+                xlApp = new Excel.Application();
+                logger.Log(LogLevel.Debug, $"Loading excel file : {excelPath}");
+                xlWorkBook = xlApp.Workbooks.Open(excelPath, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
+                foreach (Excel.Worksheet worksheet in xlWorkBook.Worksheets)
+                {
+                    WorksheetsNames.Add(worksheet.Name, worksheet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error loading excel : {excelPath} , exception message : {ex.Message}");
             }
         }
 
@@ -34,45 +43,70 @@ namespace ConfigToolLibrary2
 
         public string SelectWorkSheet(int index)
         {
-            CurrentWorksheet = WorksheetsNames.Values.ElementAt(index);
-            return CurrentWorksheet.Name;
+            try
+            {
+                CurrentWorksheet = WorksheetsNames.Values.ElementAt(index - 1);
+                logger.Log(LogLevel.Info, $"Selected sheet: {CurrentWorksheet.Name}");
+                return CurrentWorksheet.Name;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error selecting sheet at index : {index} , exception message : {ex.Message}");
+                throw;
+            }
         }
 
         public List<string> GetColumnNames()
         {
-            Excel.Range range = CurrentWorksheet.UsedRange;
-            //read first row for column
-            int cl = range.Columns.Count;
-            List<string> colNames = new List<string>();
-            for (int cCnt = 1; cCnt <= cl; cCnt++)
+            try
             {
-                if ((range.Cells[1, cCnt] as Excel.Range).Value2 == null) break;
+                Excel.Range range = CurrentWorksheet.UsedRange;
+                //read first row for column
+                int cl = range.Columns.Count;
+                List<string> colNames = new List<string>();
+                for (int cCnt = 1; cCnt <= cl; cCnt++)
+                {
+                    if ((range.Cells[1, cCnt] as Excel.Range).Value2 == null) break;
 
-                colNames.Add((range.Cells[1, cCnt] as Excel.Range).Value2);
+                    colNames.Add((range.Cells[1, cCnt] as Excel.Range).Value2);
+                }
+
+                return colNames;
             }
-
-            return colNames;
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error getting column names, exception message : {ex.Message}");
+                throw;
+            }
         }
 
         public List<string> GetSqlFromCurrentSheet(Dictionary<string, int> columnMapping)
         {
             List<string> sqlQueries = new List<string>();
-            Excel.Range range = CurrentWorksheet.UsedRange;
-            int rw = range.Rows.Count;
-
-            for (int rCnt = 2; rCnt <= rw; rCnt++)
+            try
             {
-                string sqlQuery = "SELECT ";
-                foreach (var col in columnMapping)
-                {
-                    sqlQuery += $"{(range.Cells[rCnt, col.Value] as Excel.Range).Value} AS {col.Key}, ";
-                }
-                sqlQuery = sqlQuery.TrimEnd(new[] { ',', ' ' });
-                sqlQuery += " UNION ALL";
-                sqlQueries.Add(sqlQuery);
-            }
+                Excel.Range range = CurrentWorksheet.UsedRange;
+                int rw = range.Rows.Count;
 
-            return sqlQueries;
+                for (int rCnt = 2; rCnt <= rw; rCnt++)
+                {
+                    string sqlQuery = "SELECT ";
+                    foreach (var col in columnMapping)
+                    {
+                        sqlQuery += $"{(range.Cells[rCnt, col.Value] as Excel.Range).Value} AS {col.Key}, ";
+                    }
+                    sqlQuery = sqlQuery.TrimEnd(new[] { ',', ' ' });
+                    sqlQuery += " UNION ALL";
+                    sqlQueries.Add(sqlQuery);
+                }
+
+                return sqlQueries;
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error getting sql from sheet, exception message : {ex.Message}");
+                throw;
+            }
         }
 
         //==========================================================================//

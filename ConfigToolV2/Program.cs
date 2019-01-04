@@ -1,12 +1,8 @@
-﻿using System;
+﻿using ConfigToolLibrary2;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
-using ConfigToolLibrary2;
 
 namespace ConfigToolV2
 {
@@ -30,12 +26,12 @@ namespace ConfigToolV2
 
             //======================
 
-            GithubHelper githubHelper = new GithubHelper(135317263, githubUserToken);
+            GithubHelper githubHelper = new GithubHelper(repositoryName, githubUserToken);
             excelHelper.LoadWorkBook(excelFilePath);
             List<string> excelSheetNames = excelHelper.GetAllWorkSheetNames();
             int i = 1;
             Console.WriteLine("Select Worksheet (Enter Number) : ");
-            excelSheetNames.ForEach(x=> Console.Write($"{i++}.{x}\n"));
+            excelSheetNames.ForEach(x => Console.Write($"{i++}.{x}\n"));
             int sheetNumber = Convert.ToInt32(Console.ReadLine());
             string tableName = excelHelper.SelectWorkSheet(sheetNumber);
 
