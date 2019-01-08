@@ -13,8 +13,8 @@ namespace ConfigToolLibrary2
         private  string[] PrevNextWords;
         public static string[] StringSplitter(string line)
         {
-            string[] separatingChars = {"SELECT", "AS", "UNION", "ALL", " ","," };
-            return line.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries);
+            string[] separatingChars = { "SELECT", "AS", ",", "UNION ALL" };
+            return line.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries).Select(l=>l.Trim()).ToArray();
         }
 
         public  bool CompareString(string PrevLine, string PrevNextLine, string LatLine)
