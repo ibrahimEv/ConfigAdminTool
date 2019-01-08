@@ -36,7 +36,7 @@ namespace ConfigToolLibrary2
             Duplicate = new Dictionary<string, IDictionary<string, object>>();
             FinalFile = new List<string>();
             DefaultObject = new Dictionary<string, IDictionary<string, object>>();
-            DefaultObject.Add("Default",new ConcurrentDictionary<string, object>());
+            DefaultObject.Add("Default",new Dictionary<string, object>());
 
         }
 
