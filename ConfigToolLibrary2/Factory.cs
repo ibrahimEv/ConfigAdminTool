@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Vbe.Interop;
@@ -10,23 +11,37 @@ namespace ConfigToolLibrary2
 {
     public class Factory
     {
-       
-        public static IDictionary<string,object> GetDynamicObject(string SqlLine)
+
+        public static string KeyGenerator(List<string> keys)
         {
-            string[] Property = Utils.StringSplitter(SqlLine);
-            if (Property.Length % 2 == 0)
+            return keys[0] +"X"+ keys[2];
+        }
+
+        public static Dictionary<string, IDictionary<string, object>> GetDynamicObjects(List<string> selectStatements)
+        {
+            Dictionary<string, IDictionary<string, object>> ListOFObjects =
+                new Dictionary<string, IDictionary<string, object>>();
+            foreach (var Statement in selectStatements)
             {
-                var myObject = new ExpandoObject() as IDictionary<string, object>;
-                for (int i = 0; i < Property.Length; i++)
+                List<string> Property = UtilClass.StringSplitter(Statement);
+                if (Property.Count % 2 == 1)
                 {
-                    myObject.Add(Property[i+1],Property[i]);
-                    i++;
+                    Property.Insert(0,"PrimaryKey");
                 }
 
-                return myObject;
+                    var key = KeyGenerator(Property);
+                    var myObject = new ExpandoObject() as IDictionary<string, object>;
+                    for (int i = 0; i < Property.Count; i++)
+                    {
+                        myObject.Add(Property[i + 1], Property[i]);
+                        i++;
+                    }
+
+                    ListOFObjects.Add(key,myObject);
+                
             }
 
-            return null;
+            return ListOFObjects;
         }
 
     }

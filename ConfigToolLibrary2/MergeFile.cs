@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,117 +7,171 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Security.AccessControl;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ConfigToolLibrary2
 {
-    public class MergeFile
+    public class MergeFile 
     {
         public List<string> DuplicateLatFile { get; set; }
         public List<string> NewFileChanges { get; set; }
+        public List<string> FinalFile { get; set; }
+        public List<string> NewUpdated { get; set; }
+        public List<string> ContainsSelect { get; set; }
+        public List<string> NewAdded { get; set; }
         public List<string> NewSqlFile { get; set; }
-        public Stopwatch TotalTime { get; set; }
-        public Utils Util { get; set; }
-        public IDictionary<string,object> LatestObject { get; set; }
+        public UtilClass Util { get; set; }
         public int PrimaryKey { get; set; }
-        public string OldSqlFileNextLine { get; set; }
+        public Dictionary<string, IDictionary<string, object>> Duplicate { get; set; }
+        public Dictionary<string, IDictionary<string, object>> DefaultObject { get; set; }
 
         public MergeFile()
         {
-            Util = new Utils();
+            Util = new UtilClass();
             DuplicateLatFile = new List<string>();
             NewSqlFile = new List<string>();
             NewFileChanges = new List<string>();
+            NewUpdated = new List<string>();
+            NewAdded = new List<string>();
+            Duplicate = new Dictionary<string, IDictionary<string, object>>();
+            FinalFile = new List<string>();
+            DefaultObject = new Dictionary<string, IDictionary<string, object>>();
+            DefaultObject.Add("Default",new Dictionary<string, object>());
 
         }
 
         public List<string> Merge(List<string> OldSqlFile, List<string> NewFileChanges)
         {
-            foreach (var latLine in NewFileChanges)
+                DuplicateLatFile = ObjectExtension.CopyObject<List<string>>(NewFileChanges);
+               
+                    ContainsSelect = Util.GetSelectStatements(OldSqlFile);
+                var OldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
+                var NewSelectStatementsObjects = Factory.GetDynamicObjects(NewFileChanges);
+                this.MakeDefaultObject(OldSelectStatementsObjects);
+                this.GetPrimaryKey();
+                this.GetDeepCopy(NewSelectStatementsObjects);
+                this.UpdateObjects(NewSelectStatementsObjects,OldSelectStatementsObjects);
+                this.AddNewObjects(OldSelectStatementsObjects);
+                this.MakeCorrectionOfLines(OldSelectStatementsObjects);
+            return this.CombineLines();
+        }
+
+        public List<string> CombineLines()
+        {
+            for (int i = 0; i < Util.WithoutSelect.Count; i++)
             {
-                DuplicateLatFile.Add(latLine);
+                
+                if (Util.WithoutSelect[i].Contains(Keywords.INSERT_INTO))
+                {
+                    FinalFile.Add(Util.WithoutSelect[i]);
+                    FinalFile.Add("");
+                    i++;
+                    foreach (var Select in NewUpdated)
+                    {
+                        FinalFile.Add(Select);
+                    }
+                    FinalFile.Add("");
+                    foreach (var NewSelect in NewAdded)
+                    {
+                        FinalFile.Add(NewSelect);
+                    }
+
+                }
+                FinalFile.Add(Util.WithoutSelect[i]);
             }
 
+            return FinalFile;
+        }
 
-            Console.WriteLine();
-            TotalTime = Stopwatch.StartNew();
-            for (var index = 0; index < OldSqlFile.Count; index++)
+          
+        public void MakeDefaultObject(Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
+        {
+            var x = DefaultObject["Default"];
+            foreach (var obj in oldSelectStatementsObjects.Last().Value)
             {
-                foreach (var latLine in NewFileChanges)
-                {
-                    
-                    if (latLine != Keywords.EMPTY_LINE && OldSqlFile[index] != Keywords.EMPTY_LINE)
-                    {
-                        OldSqlFileNextLine = index < OldSqlFile.Count - 1 ? OldSqlFile[index + 1] : Keywords.EMPTY_LINE;
-
-                        if (Util.CompareString(OldSqlFile[index], OldSqlFileNextLine, latLine))
-                        {
-                            var Oldobj =Factory.GetDynamicObject(OldSqlFile[index]);
-                            var Newobj = Factory.GetDynamicObject(latLine);
-                            var latestObj =  Manipulator.GetLatestChanges(Oldobj, Newobj);
-                            var NewLine =  Utils.ConvertToString(latestObj);
-
-                            NewSqlFile.Add(NewLine);
-                            
-                            if (index < OldSqlFile.Count - 1) index++;
-                             DuplicateLatFile.Remove(latLine);
-                        }
-
-                    }
-                }
-
-                if (index < OldSqlFile.Count)
-                {
-                    if (OldSqlFile[index].Contains(Keywords.BEGIN_TRY))
-                    {
-                        for (int s = NewSqlFile.Count - 1; s >= 0 && DuplicateLatFile.Count > 0; s--)
-                        {
-                            if (NewSqlFile[s].Contains(Keywords.SELECT) && !NewSqlFile[s].Contains(Keywords.UNION_ALL))
-                            {
-                                PrimaryKey = Convert.ToInt32(Utils.StringSplitter(NewSqlFile[s])[0]);
-                                NewSqlFile[s] = NewSqlFile[s] + Keywords.UNION_ALL;
-                                LatestObject = Factory.GetDynamicObject(NewSqlFile[s]);
-                                break;
-                            }
-                        }
-                        for (int x = 0; x < DuplicateLatFile.Count; x++)
-                        {
-                            if (DuplicateLatFile[x]!= Keywords.EMPTY_LINE && LatestObject != null)
-                            {
-                                PrimaryKey++;
-                                DuplicateLatFile[x] = DuplicateLatFile[x].Replace(Keywords.SELECT, Keywords.SELECT + " " + PrimaryKey);
-                                var AddNewobj = Factory.GetDynamicObject(DuplicateLatFile[x]);
-                                var AddlatestObj = Manipulator.GetLatestChanges(LatestObject, AddNewobj);
-                                string AddNewLine;
-                                if (x==DuplicateLatFile.Count - 1)
-                                {
-                                     AddNewLine = Utils.ConvertToString(AddlatestObj);
-                                    AddNewLine = AddNewLine.Replace(Keywords.UNION_ALL, "");
-                                }
-                                else
-                                {
-                                     AddNewLine = Utils.ConvertToString(AddlatestObj);
-                                }
-                              
-                                NewSqlFile.Add(AddNewLine);
-                            }
-                                
-                        }
-                        NewSqlFile.Add(Keywords.EMPTY_LINE);
-                    }
-                }
-
-                NewSqlFile.Add(OldSqlFile[index]);
-                 Console.Write("\r{0}%",((index * 100) / OldSqlFile.Count)+1);
-
-
+                x.Add(obj.Key, obj.Value);
             }
-            TotalTime.Stop();
-            var time = TotalTime.ElapsedMilliseconds;
-            Console.WriteLine();
-            Console.WriteLine("Total Time Required  --  " + time + " milliseconds");
-            Console.WriteLine("Total Time Required  --  " + time / 100 + " secs");
-            return NewSqlFile;
 
         }
+
+        public void GetPrimaryKey()
+        {
+           this.PrimaryKey = Convert.ToInt32(DefaultObject.First().Value.First().Value);
+        }
+
+        public void GetDeepCopy(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects)
+        {
+            foreach (var obj in newSelectStatementsObjects)
+            {
+                Duplicate.Add(obj.Key, obj.Value);
+            }
+        }
+
+        public void UpdateObjects(Dictionary<string,IDictionary<string,object>> newSelectStatementsObjects,
+            Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
+        {
+            foreach (var NewObject in newSelectStatementsObjects)
+            {
+                foreach (var OldObject in oldSelectStatementsObjects)
+                {
+                    if (NewObject.Key == OldObject.Key)
+                    {
+                        foreach (var newValue in NewObject.Value)
+                        {
+                            OldObject.Value[newValue.Key] = newValue.Value;
+                        }
+
+                        Duplicate.Remove(OldObject.Key);
+                    }
+                }
+            }
+
+        }
+
+        public void AddNewObjects(Dictionary<string,IDictionary<string,object>> oldSelectStatementsObjects)
+        {
+            foreach (var AddedLine in Duplicate)
+            {
+                foreach (var obj in AddedLine.Value)
+                {
+                    if (obj.Value == (object)"PrimaryKey")
+                    {
+                        DefaultObject.First().Value[obj.Key] = ++PrimaryKey;
+                    }
+                    else
+                    {
+                        DefaultObject.First().Value[obj.Key] = obj.Value;
+                    }
+                }
+                if (!(oldSelectStatementsObjects.ContainsKey(DefaultObject.First().Key)))
+                {
+                    NewAdded.Add(UtilClass.ConvertToString(DefaultObject.First().Value));
+                }
+
+            }
+
+        }
+
+        public void MakeCorrectionOfLines(Dictionary<string,IDictionary<string,object>> oldSelectStatementsObjects)
+        {
+            foreach (var OldObject in oldSelectStatementsObjects)
+            {
+                NewUpdated.Add(UtilClass.ConvertToString(OldObject.Value));
+            }
+
+            if (NewAdded.Count > 0)
+            {
+                ContainsSelect[ContainsSelect.Count - 1] = ContainsSelect[ContainsSelect.Count - 1] + Keywords.UNION_ALL;
+                NewAdded[NewAdded.Count - 1] = NewAdded[NewAdded.Count - 1].Replace(Keywords.UNION_ALL, "");
+            }
+            else
+            {
+                NewUpdated[NewUpdated.Count - 1] = NewUpdated[NewUpdated.Count - 1].Replace(Keywords.UNION_ALL, "");
+            }
+
+        }
+
+       
     }
+    
 }
