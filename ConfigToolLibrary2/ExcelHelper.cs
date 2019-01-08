@@ -93,7 +93,13 @@ namespace ConfigToolLibrary2
                     string sqlQuery = "SELECT ";
                     foreach (var col in columnMapping)
                     {
-                        sqlQuery += $"{(range.Cells[rCnt, col.Value] as Excel.Range).Value} AS {col.Key}, ";
+                        if (col.Key.ToLower().Contains("varchar"))
+                        {
+                            sqlQuery +=
+                                $"'{(range.Cells[rCnt, col.Value] as Excel.Range).Value}' AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                        }
+                        else
+                            sqlQuery += $"{(range.Cells[rCnt, col.Value] as Excel.Range).Value} AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
                     }
                     sqlQuery = sqlQuery.TrimEnd(new[] { ',', ' ' });
                     sqlQuery += " UNION ALL";

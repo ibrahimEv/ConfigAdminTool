@@ -13,6 +13,8 @@ namespace ConfigToolLibrary2
         private static long _repositoryId;
         private string _shaHeadBranch;
         private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        private static List<string> ColumnDefinitionList { get; set; }
         public GithubHelper(string repositoryName, string githubUserToken)
         {
             _repositoryId = GetRepositoryId(repositoryName);
@@ -20,6 +22,7 @@ namespace ConfigToolLibrary2
             {
                 Credentials = new Credentials(githubUserToken)
             };
+            ColumnDefinitionList = new List<string>();
         }
         public async Task<List<string>> GetContentOfFile(string filePath, string branchName)
         {
@@ -28,9 +31,15 @@ namespace ConfigToolLibrary2
                 logger.Log(LogLevel.Debug, $"Getting content from Github.");
 
                 IReadOnlyList<RepositoryContent> response = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, filePath, branchName);
-                List<string> strList = response[0].Content.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.None).ToList();
+                string fileContent = response[0].Content;
 
-                return strList;
+                string tableDefinition = response[0].Content.Substring(fileContent.IndexOf("CREATE TABLE", StringComparison.Ordinal),
+                    fileContent.IndexOf("INSERT", StringComparison.Ordinal) - fileContent.IndexOf("CREATE TABLE", StringComparison.Ordinal));
+                LoadColumnDefinition(tableDefinition);
+
+                List<string> fileContentList = fileContent.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.None).ToList();
+
+                return fileContentList;
             }
             catch (Exception ex)
             {
@@ -116,7 +125,8 @@ namespace ConfigToolLibrary2
         {
             try
             {
-                var searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
+                //var searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
+                var searchCodeRequest = new SearchCodeRequest(tableName, "mayuresh-evh", repositoryName);
                 logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
                 var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
                 string path = String.Empty;
@@ -136,6 +146,7 @@ namespace ConfigToolLibrary2
         {
             try
             {
+                return ColumnDefinitionList;
                 string insertLine = fileContent.First(x => x.StartsWith("INSERT INTO"));
                 insertLine = insertLine.Substring(insertLine.IndexOf('(')).Trim('(', ')');
                 return insertLine.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -146,6 +157,24 @@ namespace ConfigToolLibrary2
                 throw;
             }
         }
+        public void LoadColumnDefinition(string tableDefinition)
+        {
+            try
+            {
+                string temp = tableDefinition.Substring(tableDefinition.IndexOf('(') + 1, tableDefinition.LastIndexOf(')') - tableDefinition.IndexOf('('));
+                string[] col = temp.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in col)
+                {
+                    string[] lineSeparated = s.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray();
+                    ColumnDefinitionList.Add($"{lineSeparated[0].Trim('[', ']')}::{lineSeparated[1]}");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in LoadColumnDefinition. Exception : {ex.Message}");
+                throw;
+            }
+        }
 
         public int GetRepositoryId(string repositoryName)
         {
@@ -153,6 +182,7 @@ namespace ConfigToolLibrary2
             {
                 case "IdentifiData": return Constants.IdentifiDataRepsitoryId;
                 case "user-admin-data": return Constants.UserAdminDataRepsitoryId;
+                case "Test": return Constants.TestRepsitoryId;
             }
 
             throw new Exception($"Invalid repository name : {repositoryName}");
