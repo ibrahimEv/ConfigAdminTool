@@ -42,7 +42,7 @@ namespace ConfigToolLibrary2
                 var newSelectStatementsObjects = Factory.GetDynamicObjects(newFileChanges);
                 this.MakeDefaultObject(oldSelectStatementsObjects);
                 this.GetPrimaryKey();
-                this.GetDeepCopy(newSelectStatementsObjects);
+                NewAddedObjects = this.GetDeepCopy(newSelectStatementsObjects,NewAddedObjects);
                 this.UpdateObjects(newSelectStatementsObjects,oldSelectStatementsObjects);
                 this.AddNewObjects(oldSelectStatementsObjects);
                 this.MakeCorrectionOfLines(oldSelectStatementsObjects);
@@ -91,12 +91,20 @@ namespace ConfigToolLibrary2
            this.PrimaryKey = Convert.ToInt32(DefaultObject.First().Value.First().Value);
         }
 
-        public void GetDeepCopy(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects)
+        public Dictionary<string, IDictionary<string, object>> GetDeepCopy(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects,
+            Dictionary<string, IDictionary<string, object>> newCollection)
         {
             foreach (var newSelect in newSelectStatementsObjects)
             {
-                NewAddedObjects.Add(newSelect.Key, newSelect.Value);
+                newCollection.Add(newSelect.Key, new Dictionary<string, object>());
+                foreach (var xx in newSelect.Value)
+                {
+                    newCollection[newSelect.Key].Add(xx.Key,xx.Value);
+                }
+                
             }
+
+            return newCollection;
         }
 
         public void UpdateObjects(Dictionary<string,IDictionary<string,object>> newSelectStatementsObjects,
@@ -122,17 +130,34 @@ namespace ConfigToolLibrary2
 
         public void AddNewObjects(Dictionary<string,IDictionary<string,object>> oldSelectStatementsObjects)
         {
+            var duplicateObj = new Dictionary<string, IDictionary<string, object>>();
+            duplicateObj = this.GetDeepCopy(DefaultObject, duplicateObj);
+            var comparer = StringComparison.OrdinalIgnoreCase;
             foreach (var newAddedObject in NewAddedObjects)
             {
                 foreach (var obj in newAddedObject.Value)
                 {
                     if (obj.Value == (object)"PrimaryKey")
                     {
-                        DefaultObject.First().Value[obj.Key] = $" {++PrimaryKey} ";
+                        foreach (var val in duplicateObj.First().Value)
+                        {
+                            if (String.Equals(val.Key,obj.Key,comparer))
+                            {
+                                DefaultObject.First().Value[val.Key] = $" {++PrimaryKey} ";
+                            }
+                            
+                        }
                     }
                     else
                     {
-                        DefaultObject.First().Value[obj.Key] = obj.Value;
+                        foreach (var val in duplicateObj.First().Value)
+                        {
+                            if (String.Equals(val.Key, obj.Key, comparer))
+                            {
+                                DefaultObject.First().Value[val.Key] = obj.Value;
+                            }
+
+                        }
                     }
                 }
                 if (!(oldSelectStatementsObjects.ContainsKey(DefaultObject.First().Key)))
