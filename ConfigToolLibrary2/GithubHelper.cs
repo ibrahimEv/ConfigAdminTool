@@ -132,7 +132,7 @@ namespace ConfigToolLibrary2
                 string path = String.Empty;
                 //check for one or more file
                 if (responSearchCode.TotalCount > 0)
-                    path = responSearchCode.Items.Single(file => file.Name.Equals($"Merge_{tableName}.sql")).Path;
+                    path = responSearchCode.Items.Single(file => file.Name.Equals($"Merge_{tableName}.sql", StringComparison.OrdinalIgnoreCase)).Path;
                 return path;
             }
             catch (Exception ex)
@@ -147,9 +147,6 @@ namespace ConfigToolLibrary2
             try
             {
                 return ColumnDefinitionList;
-                string insertLine = fileContent.First(x => x.StartsWith("INSERT INTO"));
-                insertLine = insertLine.Substring(insertLine.IndexOf('(')).Trim('(', ')');
-                return insertLine.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             }
             catch (Exception ex)
             {
