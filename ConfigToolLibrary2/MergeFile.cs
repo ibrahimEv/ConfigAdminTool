@@ -136,7 +136,7 @@ namespace ConfigToolLibrary2
                 {
                     if (obj.Value == (object)"PrimaryKey")
                     {
-                        DefaultObject.First().Value[obj.Key] = ++PrimaryKey;
+                        DefaultObject.First().Value[obj.Key] = $" {++PrimaryKey} ";
                     }
                     else
                     {
