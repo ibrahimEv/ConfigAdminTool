@@ -46,15 +46,15 @@ namespace ConfigToolV2
 
             List<string> newFile = mFile.Merge(contentGithubFile, sqlFromExcel);
             File.WriteAllLines(newSqlFilePath, newFile);
-
+            excelHelper.CloseExcel();
 
             //======================
 
             //=====Create PR
-            //var t = githubHelper.CreateBranch(headBranchName, newBranchName).Result;
-            //var t1 = githubHelper.UpdateFile(githubFilePath, string.Join("\n", newFile), newBranchName).Result;
-            //int prNumber = githubHelper.CreatePullRequest("New PR " + newBranchName, headBranchName, newBranchName).Result;
-            //int i = githubHelper.AddReviewerToPullRequest(prNumber, new List<string>() { "ibrahimEv" }).Result;
+            var t = githubHelper.CreateBranch(headBranchName, newBranchName).Result;
+            var t1 = githubHelper.UpdateFile(githubFilePath, string.Join("\n", newFile), newBranchName).Result;
+            int prNumber = githubHelper.CreatePullRequest("New PR " + newBranchName, headBranchName, newBranchName).Result;
+            int temp = githubHelper.AddReviewerToPullRequest(prNumber, new List<string>() { "ibrahimEv" }).Result;
             //================
 
             Console.WriteLine($"Success. File created at : {newSqlFilePath}");

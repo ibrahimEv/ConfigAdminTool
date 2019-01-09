@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ConfigToolLibrary2
@@ -12,11 +13,11 @@ namespace ConfigToolLibrary2
         public Excel.Worksheet CurrentWorksheet { get; set; }
         public Dictionary<string, Excel.Worksheet> WorksheetsNames { get; set; }
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private Excel.Application xlApp;
         //private static Logger ActionLogger = LogManager.GetLogger("Execution");
 
         public void LoadWorkBook(string excelPath)
         {
-            Excel.Application xlApp;
             Excel.Workbook xlWorkBook;
             WorksheetsNames = new Dictionary<string, Excel.Worksheet>();
             try
@@ -28,13 +29,14 @@ namespace ConfigToolLibrary2
                 {
                     WorksheetsNames.Add(worksheet.Name, worksheet);
                 }
-
+            
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error loading excel : {excelPath} , exception message : {ex.Message}");
             }
         }
+        
 
         public List<string> GetAllWorkSheetNames()
         {
@@ -93,7 +95,13 @@ namespace ConfigToolLibrary2
                     string sqlQuery = "SELECT ";
                     foreach (var col in columnMapping)
                     {
-                        sqlQuery += $"{(range.Cells[rCnt, col.Value] as Excel.Range).Value} AS {col.Key}, ";
+                        if (col.Key.ToLower().Contains("varchar"))
+                        {
+                            sqlQuery +=
+                                $"'{(range.Cells[rCnt, col.Value] as Excel.Range).Value}' AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                        }
+                        else
+                            sqlQuery += $"{(range.Cells[rCnt, col.Value] as Excel.Range).Value} AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
                     }
                     sqlQuery = sqlQuery.TrimEnd(new[] { ',', ' ' });
                     sqlQuery += " UNION ALL";
@@ -106,6 +114,23 @@ namespace ConfigToolLibrary2
             {
                 logger.Log(LogLevel.Error, $"Error getting sql from sheet, exception message : {ex.Message}");
                 throw;
+            }
+        }
+
+        public void CloseExcel()
+        {
+            try
+            {
+                xlApp.Quit();
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+            finally
+            {
+                Marshal.FinalReleaseComObject(xlApp);
+                xlApp = null;
             }
         }
 

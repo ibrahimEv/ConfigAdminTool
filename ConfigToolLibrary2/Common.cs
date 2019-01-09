@@ -7,20 +7,21 @@ namespace ConfigToolLibrary2
     public class Common
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        public static Dictionary<string, int> GetColumnMappings(List<string> columnNamesSql, List<string> columnNamesExcel)
+        public static Dictionary<string, int> GetColumnMappings(List<string> columnNamesSqlWithType, List<string> columnNamesExcel)
         {
+            List<string> columnNamesSql = columnNamesSqlWithType.Select(col => col.Substring(0, col.IndexOf(':'))).ToList();
             SpellChecker checker = new SpellChecker();
-            checker.AddWordsToDictionary(columnNamesSql);
+            checker.AddWordsToDictionary(columnNamesSqlWithType);
             Dictionary<string, int> columnMapping = new Dictionary<string, int>();
 
             for (int i = 0; i < columnNamesExcel.Count; i++)
             {
-                if (columnNamesSql.Count > i && columnNamesExcel[i].Trim() == columnNamesSql[i].Trim())
+                if (columnNamesSqlWithType.Count > i && columnNamesExcel[i].Trim() == columnNamesSql[i].Trim())
                 {
                     logger.Log(LogLevel.Debug, $"Excel column : {columnNamesExcel[i]} , sql column : {columnNamesSql[i]}");
-                    columnMapping.Add(columnNamesSql[i].Trim(), i + 1);
+                    columnMapping.Add(columnNamesSqlWithType[i].Trim(), i + 1);
                     checker.RemoveWordFromDictionary(columnNamesSql[i]);
-                    columnNamesSql[i] = string.Empty;
+                    columnNamesSqlWithType[i] = string.Empty;
                 }
                 else
                 {
@@ -28,16 +29,17 @@ namespace ConfigToolLibrary2
                     if (!string.IsNullOrEmpty(spellCheck))
                     {
                         logger.Log(LogLevel.Debug, $"Excel column : {columnNamesExcel[i]} , sql column : {spellCheck}");
-                        columnMapping.Add(spellCheck, i + 1);
+                        string colWithType = columnNamesSqlWithType.Single(col => col.StartsWith(spellCheck + "::"));
+                        columnMapping.Add(colWithType, i + 1);
                         checker.RemoveWordFromDictionary(spellCheck);
-                        columnNamesSql[columnNamesSql.IndexOf(spellCheck)] = string.Empty;
+                        columnNamesSqlWithType[columnNamesSqlWithType.IndexOf(colWithType)] = string.Empty;
                     }
                 }
             }
 
-            if (columnNamesSql.Any(cn => !string.IsNullOrEmpty(cn)))
+            if (columnNamesSqlWithType.Any(cn => !string.IsNullOrEmpty(cn)))
             {
-                logger.Log(LogLevel.Error, $"Error in column mapping, Column that could not be matched : {string.Join(",", columnNamesSql)}");
+                logger.Log(LogLevel.Error, $"Error in column mapping, Column that could not be matched : {string.Join(",", columnNamesSqlWithType)}");
             }
 
             return columnMapping;
@@ -48,5 +50,6 @@ namespace ConfigToolLibrary2
     {
         public const int UserAdminDataRepsitoryId = 135317263;
         public const int IdentifiDataRepsitoryId = 50869152;
+        public const int TestRepsitoryId = 159133156;
     }
 }
