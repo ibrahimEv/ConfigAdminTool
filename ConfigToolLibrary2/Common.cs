@@ -20,7 +20,7 @@ namespace ConfigToolLibrary2
                 {
                     logger.Log(LogLevel.Debug, $"Excel column : {columnNamesExcel[i]} , sql column : {columnNamesSql[i]}");
                     columnMapping.Add(columnNamesSqlWithType[i].Trim(), i + 1);
-                    checker.RemoveWordFromDictionary(columnNamesSql[i]);
+                    checker.RemoveWordFromDictionary(columnNamesSqlWithType[i]);
                     columnNamesSqlWithType[i] = string.Empty;
                 }
                 else
@@ -29,7 +29,7 @@ namespace ConfigToolLibrary2
                     if (!string.IsNullOrEmpty(spellCheck))
                     {
                         logger.Log(LogLevel.Debug, $"Excel column : {columnNamesExcel[i]} , sql column : {spellCheck}");
-                        string colWithType = columnNamesSqlWithType.Single(col => col.StartsWith(spellCheck + "::"));
+                        string colWithType = columnNamesSqlWithType.Single(col => col.Equals(spellCheck));
                         columnMapping.Add(colWithType, i + 1);
                         checker.RemoveWordFromDictionary(spellCheck);
                         columnNamesSqlWithType[columnNamesSqlWithType.IndexOf(colWithType)] = string.Empty;
