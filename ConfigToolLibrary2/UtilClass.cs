@@ -42,18 +42,18 @@ namespace ConfigToolLibrary2
             string newLine = Keywords.SELECT;
             foreach (var obj in latestObj)
             {
-                newLine = newLine + " " + obj.Value + " AS " + obj.Key + ",";
+                newLine = newLine + obj.Value + "AS" + obj.Key + ",";
             }
 
             newLine = newLine.TrimEnd(',');
-            newLine = newLine + " " + Keywords.UNION_ALL;
+            newLine = newLine + Keywords.UNION_ALL;
             return newLine;
         }
 
         public static List<string> StringSplitter(string line)
         {
-            string[] separatingChars = { "SELECT", "AS", "UNION", "ALL", " ", "," };
-            return line.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries).ToList();
+            string[] separatingChars = { "SELECT", "AS", ",", "UNION ALL" };
+            return line.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         }
     }
 }
