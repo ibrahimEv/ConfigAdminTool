@@ -41,6 +41,10 @@ namespace ConfigToolLibrary2
                 
             }
 
+            var x = ListOFObjects.Last().Value.Last();
+            ListOFObjects.Last().Value.Remove(x.Key);
+            ListOFObjects.Last().Value.Add(x.Key+" ",x.Value);
+
             return ListOFObjects;
         }
 

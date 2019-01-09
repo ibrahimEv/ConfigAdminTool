@@ -29,7 +29,7 @@ namespace ConfigToolLibrary2
                     if (!string.IsNullOrEmpty(spellCheck))
                     {
                         logger.Log(LogLevel.Debug, $"Excel column : {columnNamesExcel[i]} , sql column : {spellCheck}");
-                        string colWithType = columnNamesSqlWithType.Single(col => col.StartsWith(spellCheck + "::"));
+                        string colWithType = columnNamesSqlWithType.Single(col => col.StartsWith(spellCheck));
                         columnMapping.Add(colWithType, i + 1);
                         checker.RemoveWordFromDictionary(spellCheck);
                         columnNamesSqlWithType[columnNamesSqlWithType.IndexOf(colWithType)] = string.Empty;
