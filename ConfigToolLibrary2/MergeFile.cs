@@ -13,46 +13,39 @@ namespace ConfigToolLibrary2
 {
     public class MergeFile 
     {
-        public List<string> DuplicateLatFile { get; set; }
-        public List<string> NewFileChanges { get; set; }
         public List<string> FinalFile { get; set; }
-        public List<string> NewUpdated { get; set; }
+        public List<string> NewUpdatedSelects { get; set; }
         public List<string> ContainsSelect { get; set; }
-        public List<string> NewAdded { get; set; }
+        public List<string> NewAddedSelects { get; set; }
         public List<string> NewSqlFile { get; set; }
         public UtilClass Util { get; set; }
         public int PrimaryKey { get; set; }
-        public Dictionary<string, IDictionary<string, object>> Duplicate { get; set; }
+        public Dictionary<string, IDictionary<string, object>> NewAddedObjects { get; set; }
         public Dictionary<string, IDictionary<string, object>> DefaultObject { get; set; }
 
         public MergeFile()
         {
             Util = new UtilClass();
-            DuplicateLatFile = new List<string>();
             NewSqlFile = new List<string>();
-            NewFileChanges = new List<string>();
-            NewUpdated = new List<string>();
-            NewAdded = new List<string>();
-            Duplicate = new Dictionary<string, IDictionary<string, object>>();
+            NewUpdatedSelects = new List<string>();
+            NewAddedSelects = new List<string>();
+            NewAddedObjects = new Dictionary<string, IDictionary<string, object>>();
             FinalFile = new List<string>();
             DefaultObject = new Dictionary<string, IDictionary<string, object>>();
             DefaultObject.Add("Default",new Dictionary<string, object>());
-
         }
 
-        public List<string> Merge(List<string> OldSqlFile, List<string> NewFileChanges)
+        public List<string> Merge(List<string> oldSqlFile, List<string> newFileChanges)
         {
-                DuplicateLatFile = ObjectExtension.CopyObject<List<string>>(NewFileChanges);
-               
-                    ContainsSelect = Util.GetSelectStatements(OldSqlFile);
-                var OldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
-                var NewSelectStatementsObjects = Factory.GetDynamicObjects(NewFileChanges);
-                this.MakeDefaultObject(OldSelectStatementsObjects);
+                ContainsSelect = Util.GetSelectStatements(oldSqlFile);
+                var oldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
+                var newSelectStatementsObjects = Factory.GetDynamicObjects(newFileChanges);
+                this.MakeDefaultObject(oldSelectStatementsObjects);
                 this.GetPrimaryKey();
-                this.GetDeepCopy(NewSelectStatementsObjects);
-                this.UpdateObjects(NewSelectStatementsObjects,OldSelectStatementsObjects);
-                this.AddNewObjects(OldSelectStatementsObjects);
-                this.MakeCorrectionOfLines(OldSelectStatementsObjects);
+                this.GetDeepCopy(newSelectStatementsObjects);
+                this.UpdateObjects(newSelectStatementsObjects,oldSelectStatementsObjects);
+                this.AddNewObjects(oldSelectStatementsObjects);
+                this.MakeCorrectionOfLines(oldSelectStatementsObjects);
             return this.CombineLines();
         }
 
@@ -66,14 +59,14 @@ namespace ConfigToolLibrary2
                     FinalFile.Add(Util.WithoutSelect[i]);
                     FinalFile.Add("");
                     i++;
-                    foreach (var Select in NewUpdated)
+                    foreach (var updatedSelect in NewUpdatedSelects)
                     {
-                        FinalFile.Add(Select);
+                        FinalFile.Add(updatedSelect);
                     }
                     FinalFile.Add("");
-                    foreach (var NewSelect in NewAdded)
+                    foreach (var addedSelect in NewAddedSelects)
                     {
-                        FinalFile.Add(NewSelect);
+                        FinalFile.Add(addedSelect);
                     }
 
                 }
@@ -86,12 +79,11 @@ namespace ConfigToolLibrary2
           
         public void MakeDefaultObject(Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
-            var x = DefaultObject["Default"];
-            foreach (var obj in oldSelectStatementsObjects.Last().Value)
+            var values = DefaultObject["Default"];
+            foreach (var defaultValue in oldSelectStatementsObjects.Last().Value)
             {
-                x.Add(obj.Key, obj.Value);
+                values.Add(defaultValue.Key, defaultValue.Value);
             }
-
         }
 
         public void GetPrimaryKey()
@@ -101,27 +93,27 @@ namespace ConfigToolLibrary2
 
         public void GetDeepCopy(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects)
         {
-            foreach (var obj in newSelectStatementsObjects)
+            foreach (var newSelect in newSelectStatementsObjects)
             {
-                Duplicate.Add(obj.Key, obj.Value);
+                NewAddedObjects.Add(newSelect.Key, newSelect.Value);
             }
         }
 
         public void UpdateObjects(Dictionary<string,IDictionary<string,object>> newSelectStatementsObjects,
             Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
-            foreach (var NewObject in newSelectStatementsObjects)
+            foreach (var newObject in newSelectStatementsObjects)
             {
-                foreach (var OldObject in oldSelectStatementsObjects)
+                foreach (var oldObject in oldSelectStatementsObjects)
                 {
-                    if (NewObject.Key == OldObject.Key)
+                    if (newObject.Key == oldObject.Key)
                     {
-                        foreach (var newValue in NewObject.Value)
+                        foreach (var newValue in newObject.Value)
                         {
-                            OldObject.Value[newValue.Key] = newValue.Value;
+                            oldObject.Value[newValue.Key] = newValue.Value;
                         }
 
-                        Duplicate.Remove(OldObject.Key);
+                        NewAddedObjects.Remove(oldObject.Key);
                     }
                 }
             }
@@ -130,9 +122,9 @@ namespace ConfigToolLibrary2
 
         public void AddNewObjects(Dictionary<string,IDictionary<string,object>> oldSelectStatementsObjects)
         {
-            foreach (var AddedLine in Duplicate)
+            foreach (var newAddedObject in NewAddedObjects)
             {
-                foreach (var obj in AddedLine.Value)
+                foreach (var obj in newAddedObject.Value)
                 {
                     if (obj.Value == (object)"PrimaryKey")
                     {
@@ -145,7 +137,7 @@ namespace ConfigToolLibrary2
                 }
                 if (!(oldSelectStatementsObjects.ContainsKey(DefaultObject.First().Key)))
                 {
-                    NewAdded.Add(UtilClass.ConvertToString(DefaultObject.First().Value));
+                    NewAddedSelects.Add(UtilClass.ConvertToString(DefaultObject.First().Value));
                 }
 
             }
@@ -154,19 +146,19 @@ namespace ConfigToolLibrary2
 
         public void MakeCorrectionOfLines(Dictionary<string,IDictionary<string,object>> oldSelectStatementsObjects)
         {
-            foreach (var OldObject in oldSelectStatementsObjects)
+            foreach (var oldSelectObject in oldSelectStatementsObjects)
             {
-                NewUpdated.Add(UtilClass.ConvertToString(OldObject.Value));
+                NewUpdatedSelects.Add(UtilClass.ConvertToString(oldSelectObject.Value));
             }
 
-            if (NewAdded.Count > 0)
+            if (NewAddedSelects.Count > 0)
             {
                 ContainsSelect[ContainsSelect.Count - 1] = ContainsSelect[ContainsSelect.Count - 1] + Keywords.UNION_ALL;
-                NewAdded[NewAdded.Count - 1] = NewAdded[NewAdded.Count - 1].Replace(Keywords.UNION_ALL, "");
+                NewAddedSelects[NewAddedSelects.Count - 1] = NewAddedSelects[NewAddedSelects.Count - 1].Replace(Keywords.UNION_ALL, "");
             }
             else
             {
-                NewUpdated[NewUpdated.Count - 1] = NewUpdated[NewUpdated.Count - 1].Replace(Keywords.UNION_ALL, "");
+                NewUpdatedSelects[NewUpdatedSelects.Count - 1] = NewUpdatedSelects[NewUpdatedSelects.Count - 1].Replace(Keywords.UNION_ALL, "");
             }
 
         }
