@@ -1,7 +1,9 @@
 ﻿using NLog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -13,12 +15,17 @@ namespace ConfigToolLibrary2
         public Excel.Worksheet CurrentWorksheet { get; set; }
         public Dictionary<string, Excel.Worksheet> WorksheetsNames { get; set; }
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        private Excel.Application xlApp;
+        private Excel.Application xlApp = null;
+
+        private Excel.Workbook xlWorkBook = null;
+
+        private Excel.Range range = null;
         //private static Logger ActionLogger = LogManager.GetLogger("Execution");
 
         public void LoadWorkBook(string excelPath)
         {
-            Excel.Workbook xlWorkBook;
+            /*  Excel.Workbook xlWorkBook*/
+            ;
             WorksheetsNames = new Dictionary<string, Excel.Worksheet>();
             try
             {
@@ -29,14 +36,14 @@ namespace ConfigToolLibrary2
                 {
                     WorksheetsNames.Add(worksheet.Name, worksheet);
                 }
-            
+
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error loading excel : {excelPath} , exception message : {ex.Message}");
             }
         }
-        
+
 
         public List<string> GetAllWorkSheetNames()
         {
@@ -62,7 +69,7 @@ namespace ConfigToolLibrary2
         {
             try
             {
-                Excel.Range range = CurrentWorksheet.UsedRange;
+                range = CurrentWorksheet.UsedRange;
                 //read first row for column
                 int cl = range.Columns.Count;
                 List<string> colNames = new List<string>();
@@ -87,7 +94,7 @@ namespace ConfigToolLibrary2
             List<string> sqlQueries = new List<string>();
             try
             {
-                Excel.Range range = CurrentWorksheet.UsedRange;
+                range = CurrentWorksheet.UsedRange;
                 int rw = range.Rows.Count;
 
                 for (int rCnt = 2; rCnt <= rw; rCnt++)
@@ -119,21 +126,61 @@ namespace ConfigToolLibrary2
 
         public void CloseExcel()
         {
-            try
-            {
-                xlApp.Quit();
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
-            finally
-            {
-                Marshal.FinalReleaseComObject(xlApp);
-                xlApp = null;
-            }
+            int hwnd = xlApp.Application.Hwnd;
+            TryKillProcessByMainWindowHwnd(hwnd);
         }
 
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        /// <summary> Tries to find and kill process by hWnd to the main window of the process.</summary>
+        /// <param name="hWnd">Handle to the main window of the process.</param>
+        /// <returns>True if process was found and killed. False if process was not found by hWnd or if it could not be killed.</returns>
+        public static bool TryKillProcessByMainWindowHwnd(int hWnd)
+        {
+            uint processID;
+            GetWindowThreadProcessId((IntPtr)hWnd, out processID);
+            if (processID == 0) return false;
+            try
+            {
+                Process.GetProcessById((int)processID).Kill();
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+            catch (Win32Exception)
+            {
+                return false;
+            }
+            catch (NotSupportedException)
+            {
+                return false;
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary> Finds and kills process by hWnd to the main window of the process.</summary>
+        /// <param name="hWnd">Handle to the main window of the process.</param>
+        /// <exception cref="ArgumentException">
+        /// Thrown when process is not found by the hWnd parameter (the process is not running). 
+        /// The identifier of the process might be expired.
+        /// </exception>
+        /// <exception cref="Win32Exception">See Process.Kill() exceptions documentation.</exception>
+        /// <exception cref="NotSupportedException">See Process.Kill() exceptions documentation.</exception>
+        /// <exception cref="InvalidOperationException">See Process.Kill() exceptions documentation.</exception>
+        public static void KillProcessByMainWindowHwnd(int hWnd)
+        {
+            uint processID;
+            GetWindowThreadProcessId((IntPtr)hWnd, out processID);
+            if (processID == 0)
+                throw new ArgumentException("Process has not been found by the given main window handle.", "hWnd");
+            Process.GetProcessById((int)processID).Kill();
+        }
         //==========================================================================//
 
         #region OldCode
