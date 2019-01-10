@@ -11,25 +11,36 @@ namespace ConfigToolLibrary2
 {
     public class Factory
     {
+        public bool flag=false;
+        public int counter=0;
 
-        public static string KeyGenerator(List<string> keys)
+        public static string KeyGenerator(List<string> keys,bool flag01)
         {
-            return keys[0] +"X"+ keys[2];
+            if (flag01 == false)
+            {
+                return keys[0];
+            }
+            else
+            {
+                return keys[0] + "X" + keys[2];
+            }
+            
         }
 
-        public static Dictionary<string, IDictionary<string, object>> GetDynamicObjects(List<string> selectStatements)
+        public  Dictionary<string, IDictionary<string, object>> GetDynamicObjects(List<string> selectStatements, bool flag01 = false)
         {
             Dictionary<string, IDictionary<string, object>> ListOFObjects =
                 new Dictionary<string, IDictionary<string, object>>();
             foreach (var Statement in selectStatements)
             {
+                counter++;
                 List<string> Property = UtilClass.StringSplitter(Statement);
                 if (Property.Count % 2 == 1)
                 {
-                    Property.Insert(0,"PrimaryKey");
+                    Property.Insert(0,"PrimaryKey"+counter);
                 }
 
-                    var key = KeyGenerator(Property);
+                    var key = KeyGenerator(Property, flag01);
                     var myObject = new ExpandoObject() as IDictionary<string, object>;
                     for (int i = 0; i < Property.Count; i++)
                     {
@@ -37,7 +48,18 @@ namespace ConfigToolLibrary2
                         i++;
                     }
 
-                    ListOFObjects.Add(key,myObject);
+                try
+                {
+                    ListOFObjects.Add(key, myObject);
+                }
+                catch
+                {
+                    this.flag = true;
+                    ListOFObjects.Clear();
+                    return GetDynamicObjects(selectStatements,this.flag);
+                  
+                }
+                    
                 
             }
 

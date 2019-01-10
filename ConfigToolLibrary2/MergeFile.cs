@@ -11,7 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ConfigToolLibrary2
 {
-    public class MergeFile 
+    public class MergeFile
     {
         public List<string> FinalFile { get; set; }
         public List<string> NewUpdatedSelects { get; set; }
@@ -22,6 +22,7 @@ namespace ConfigToolLibrary2
         public int PrimaryKey { get; set; }
         public Dictionary<string, IDictionary<string, object>> NewAddedObjects { get; set; }
         public Dictionary<string, IDictionary<string, object>> DefaultObject { get; set; }
+        public Factory fact { get; set; }
 
         public MergeFile()
         {
@@ -32,20 +33,21 @@ namespace ConfigToolLibrary2
             NewAddedObjects = new Dictionary<string, IDictionary<string, object>>();
             FinalFile = new List<string>();
             DefaultObject = new Dictionary<string, IDictionary<string, object>>();
-            DefaultObject.Add("Default",new Dictionary<string, object>());
+            DefaultObject.Add("Default", new Dictionary<string, object>());
+            fact = new Factory();
         }
 
         public List<string> Merge(List<string> oldSqlFile, List<string> newFileChanges)
         {
-                ContainsSelect = Util.GetSelectStatements(oldSqlFile);
-                var oldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
-                var newSelectStatementsObjects = Factory.GetDynamicObjects(newFileChanges);
-                this.MakeDefaultObject(oldSelectStatementsObjects);
-                this.GetPrimaryKey();
-                NewAddedObjects = this.GetDeepCopy(newSelectStatementsObjects,NewAddedObjects);
-                this.UpdateObjects(newSelectStatementsObjects,oldSelectStatementsObjects);
-                this.AddNewObjects(oldSelectStatementsObjects);
-                this.MakeCorrectionOfLines(oldSelectStatementsObjects);
+            ContainsSelect = Util.GetSelectStatements(oldSqlFile);
+            var oldSelectStatementsObjects = fact.GetDynamicObjects(ContainsSelect);
+            var newSelectStatementsObjects = fact.GetDynamicObjects(newFileChanges,  fact.flag);
+            this.MakeDefaultObject(oldSelectStatementsObjects);
+            this.GetPrimaryKey();
+            NewAddedObjects = this.GetDeepCopy(newSelectStatementsObjects, NewAddedObjects);
+            this.UpdateObjects(newSelectStatementsObjects, oldSelectStatementsObjects);
+            this.AddNewObjects(oldSelectStatementsObjects);
+            this.MakeCorrectionOfLines(oldSelectStatementsObjects);
             return this.CombineLines();
         }
 
@@ -53,7 +55,7 @@ namespace ConfigToolLibrary2
         {
             for (int i = 0; i < Util.WithoutSelect.Count; i++)
             {
-                
+
                 if (Util.WithoutSelect[i].Contains(Keywords.INSERT_INTO))
                 {
                     FinalFile.Add(Util.WithoutSelect[i]);
@@ -76,7 +78,7 @@ namespace ConfigToolLibrary2
             return FinalFile;
         }
 
-          
+
         public void MakeDefaultObject(Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
             var values = DefaultObject["Default"];
@@ -88,7 +90,7 @@ namespace ConfigToolLibrary2
 
         public void GetPrimaryKey()
         {
-           this.PrimaryKey = Convert.ToInt32(DefaultObject.First().Value.First().Value);
+            this.PrimaryKey = Convert.ToInt32(DefaultObject.First().Value.First().Value);
         }
 
         public Dictionary<string, IDictionary<string, object>> GetDeepCopy(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects,
@@ -99,15 +101,15 @@ namespace ConfigToolLibrary2
                 newCollection.Add(newSelect.Key, new Dictionary<string, object>());
                 foreach (var xx in newSelect.Value)
                 {
-                    newCollection[newSelect.Key].Add(xx.Key,xx.Value);
+                    newCollection[newSelect.Key].Add(xx.Key, xx.Value);
                 }
-                
+
             }
 
             return newCollection;
         }
 
-        public void UpdateObjects(Dictionary<string,IDictionary<string,object>> newSelectStatementsObjects,
+        public void UpdateObjects(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects,
             Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
             foreach (var newObject in newSelectStatementsObjects)
@@ -128,7 +130,7 @@ namespace ConfigToolLibrary2
 
         }
 
-        public void AddNewObjects(Dictionary<string,IDictionary<string,object>> oldSelectStatementsObjects)
+        public void AddNewObjects(Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
             var duplicateObj = new Dictionary<string, IDictionary<string, object>>();
             duplicateObj = this.GetDeepCopy(DefaultObject, duplicateObj);
@@ -137,15 +139,15 @@ namespace ConfigToolLibrary2
             {
                 foreach (var obj in newAddedObject.Value)
                 {
-                    if (obj.Value == (object)"PrimaryKey")
+                    if (obj.Value.ToString().Contains("PrimaryKey"))
                     {
                         foreach (var val in duplicateObj.First().Value)
                         {
-                            if (String.Equals(val.Key,obj.Key,comparer))
+                            if (String.Equals(val.Key, obj.Key, comparer))
                             {
                                 DefaultObject.First().Value[val.Key] = $" {++PrimaryKey} ";
                             }
-                            
+
                         }
                     }
                     else
@@ -169,7 +171,7 @@ namespace ConfigToolLibrary2
 
         }
 
-        public void MakeCorrectionOfLines(Dictionary<string,IDictionary<string,object>> oldSelectStatementsObjects)
+        public void MakeCorrectionOfLines(Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
             foreach (var oldSelectObject in oldSelectStatementsObjects)
             {
@@ -188,7 +190,7 @@ namespace ConfigToolLibrary2
 
         }
 
-       
+
     }
-    
+
 }
