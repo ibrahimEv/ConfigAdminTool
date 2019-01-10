@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NLog;
 
@@ -37,7 +38,11 @@ namespace ConfigToolLibrary2
                     fileContent.IndexOf("INSERT", StringComparison.Ordinal) - fileContent.IndexOf("CREATE TABLE", StringComparison.Ordinal));
                 LoadColumnDefinition(tableDefinition);
 
+
+                var regex = new Regex("\'(.*?)\'");
                 List<string> fileContentList = fileContent.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.None).ToList();
+
+                fileContentList = fileContentList.Select(x => regex.Replace(x, m => m.Value.Replace(',', '#'))).ToList();
 
                 return fileContentList;
             }
@@ -125,8 +130,8 @@ namespace ConfigToolLibrary2
         {
             try
             {
-                var searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
-                //var searchCodeRequest = new SearchCodeRequest(tableName, "mayuresh-evh", repositoryName);
+                //var searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
+                var searchCodeRequest = new SearchCodeRequest(tableName, "mayuresh-evh", repositoryName);
                 logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
                 var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
                 string path = String.Empty;

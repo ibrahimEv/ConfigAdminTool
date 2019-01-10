@@ -75,7 +75,7 @@ namespace ConfigToolLibrary2
                 FinalFile.Add(Util.WithoutSelect[i]);
             }
 
-            return FinalFile;
+            return FinalFile.Select(x=>x.Replace('#',',')).ToList();
         }
 
 
