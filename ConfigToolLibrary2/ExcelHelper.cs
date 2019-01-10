@@ -127,7 +127,6 @@ namespace ConfigToolLibrary2
         public void CloseExcel()
         {
             int hwnd = xlApp.Application.Hwnd;
-            int t = xlApp.Hwnd;
             TryKillProcessByMainWindowHwnd(hwnd);
         }
 
