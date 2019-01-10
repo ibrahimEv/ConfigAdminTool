@@ -41,7 +41,7 @@ namespace ConfigToolLibrary2
         {
             ContainsSelect = Util.GetSelectStatements(oldSqlFile);
             var oldSelectStatementsObjects = fact.GetDynamicObjects(ContainsSelect);
-            var newSelectStatementsObjects = fact.GetDynamicObjects(newFileChanges,  fact.flag);
+            var newSelectStatementsObjects = fact.GetDynamicObjects(newFileChanges, fact.flag);
             this.MakeDefaultObject(oldSelectStatementsObjects);
             this.GetPrimaryKey();
             NewAddedObjects = this.GetDeepCopy(newSelectStatementsObjects, NewAddedObjects);
@@ -75,7 +75,7 @@ namespace ConfigToolLibrary2
                 FinalFile.Add(Util.WithoutSelect[i]);
             }
 
-            return FinalFile.Select(x=>x.Replace('#',',')).ToList();
+            return FinalFile.Select(x => x.Replace(Constants.ReplaceCharsForComma, ",")).ToList();
         }
 
 

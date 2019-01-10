@@ -51,5 +51,6 @@ namespace ConfigToolLibrary2
         public const int UserAdminDataRepsitoryId = 135317263;
         public const int IdentifiDataRepsitoryId = 50869152;
         public const int TestRepsitoryId = 159133156;
+        public const string ReplaceCharsForComma= "#@$%";
     }
 }
