@@ -112,15 +112,28 @@ namespace ConfigToolLibrary2
         public void UpdateObjects(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects,
             Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
+            var duplicateOldObj = new Dictionary<string, IDictionary<string, object>>();
+            duplicateOldObj = this.GetDeepCopy(oldSelectStatementsObjects, duplicateOldObj);
+            var comparer = StringComparison.OrdinalIgnoreCase;
+
             foreach (var newObject in newSelectStatementsObjects)
             {
-                foreach (var oldObject in oldSelectStatementsObjects)
+                foreach (var oldObject in duplicateOldObj)
                 {
                     if (newObject.Key == oldObject.Key)
                     {
+                        var val = oldSelectStatementsObjects[newObject.Key];
                         foreach (var newValue in newObject.Value)
                         {
-                            oldObject.Value[newValue.Key] = newValue.Value;
+                            foreach (var oldObj in oldObject.Value)
+                            {
+                                if (String.Equals(newValue.Key.Trim(), oldObj.Key.Trim(), comparer))
+                                {
+                                    val[oldObj.Key] = newValue.Value;
+                                }
+
+                            }
+                           
                         }
 
                         NewAddedObjects.Remove(oldObject.Key);
