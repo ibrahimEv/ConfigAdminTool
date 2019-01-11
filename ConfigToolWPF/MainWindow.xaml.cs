@@ -69,7 +69,6 @@ namespace ConfigToolWPF
             string tableName = _excelHelper.SelectWorkSheet(index + 1);
 
             GithubFilePath = await _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString());
-            //GithubFilePath = _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString()).Result;
 
             List<string> contentGithubFile = await _githubHelper.GetContentOfFile(GithubFilePath, headBranchName);
             List<string> sql = _githubHelper.GetColumnNames(contentGithubFile);
@@ -80,21 +79,26 @@ namespace ConfigToolWPF
             MergedFile = _mergeFile.Merge(contentGithubFile, sqlFromExcel);
         }
 
-        private void CmbRepository_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void CmbRepository_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
             _githubHelper = new GithubHelper(CmbRepository.SelectedValue.ToString(), githubUserToken);
+            List<string> allBranches = await _githubHelper.GetAllBranches();
+            CmbBranches.ItemsSource = allBranches;
+            List<string> reviewers = await _githubHelper.GetAllCollaborators();
+            CmbReviewer.ItemsSource = reviewers;
         }
 
         private async void BtnCreatePR_OnClick(object sender, RoutedEventArgs e)
         {
-            string headBranchName = TxtHeadBranchName.Text;
+            string headBranchName = CmbBranches.SelectedValue.ToString();
             string newBranchName = TxtNewBranchName.Text;
+            string reviewerName = CmbReviewer.SelectedValue.ToString();
 
             var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
             var t1 = await _githubHelper.UpdateFile(GithubFilePath, string.Join("\n", MergedFile), newBranchName);
             int prNumber = await _githubHelper.CreatePullRequest("New PR " + newBranchName, headBranchName, newBranchName);
-            int temp = await _githubHelper.AddReviewerToPullRequest(prNumber, new List<string>() { "ibrahimEv" });
+            int temp = await _githubHelper.AddReviewerToPullRequest(prNumber, new List<string>() { reviewerName });
         }
 
         private void MainWindow_OnClosed(object sender, EventArgs e)

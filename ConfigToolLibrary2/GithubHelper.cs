@@ -190,6 +190,40 @@ namespace ConfigToolLibrary2
             throw new Exception($"Invalid repository name : {repositoryName}");
         }
 
+        public async Task<List<string>> GetAllBranches()
+        {
+            try
+            {
+                IReadOnlyList<Branch> branches = await _client.Repository.Branch.GetAll(_repositoryId);
+
+                logger.Log(LogLevel.Debug, $"Getting all branches for repository {_repositoryId}");
+               
+                return branches.Select(br=>br.Name).ToList();
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in GetAllBranches, for repository {_repositoryId} . Exception : {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<List<string>> GetAllCollaborators()
+        {
+            try
+            {
+                IReadOnlyList<User> users = await _client.Repository.Collaborator.GetAll(_repositoryId);
+
+                logger.Log(LogLevel.Debug, $"Getting all branches for repository {_repositoryId}");
+
+                return users.Select(u => u.Login).ToList();
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in GetAllBranches, for repository {_repositoryId} . Exception : {ex.Message}");
+                throw;
+            }
+        }
+
         public static async Task<string> CreateBranch2()
         {
 
@@ -200,7 +234,7 @@ namespace ConfigToolLibrary2
 
             //var client = new GitHubClient(new ProductHeaderValue("Github"));
             //client.Credentials = tokenAuth;
-            //var r = await client.Repository.Branch.Get("mayuresh-EVH", "Test", "master");
+            //var r1 = await _client.Repository.Collaborator.GetAll().Branch.Get("mayuresh-EVH", "Test", "master");
             //var branchName = "TestBranch5";
             //string sha = "4d7d2bb2edb08d1989996011dcfecf146d50f363";
             //var resp = await client.Connection.Post<string>(

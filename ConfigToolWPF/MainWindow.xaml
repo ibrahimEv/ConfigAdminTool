@@ -6,18 +6,20 @@
         xmlns:local="clr-namespace:ConfigToolWPF"
         mc:Ignorable="d"
         Closed="MainWindow_OnClosed"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="500" Width="800">
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="101,184,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
-        <Label Content="Select Sheet" HorizontalAlignment="Left" Margin="101,228,0,0" VerticalAlignment="Top"/>
-        <ComboBox Name="CmbWorkSheet" HorizontalAlignment="Left" Margin="241,228,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbWorkSheet_SelectionChanged"/>
-        <Label Content="Select Repository" HorizontalAlignment="Left" Margin="101,91,0,0" VerticalAlignment="Top"/>
-        <ComboBox Name="CmbRepository" HorizontalAlignment="Left" Margin="241,91,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbRepository_SelectionChanged"/>
-        <Label Content="Enter Head BranchName" HorizontalAlignment="Left" Margin="101,134,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="TxtHeadBranchName" HorizontalAlignment="Left" Height="23" Margin="243,135,0,0" TextWrapping="Wrap" Text="master" VerticalAlignment="Top" Width="120"/>
-        <Label Content="Enter New BranchName" HorizontalAlignment="Left" Margin="101,274,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="243,275,0,0" TextWrapping="Wrap" Text="Test_10_1" VerticalAlignment="Top" Width="120"/>
-        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Left" Margin="176,334,0,0" VerticalAlignment="Top" Width="75" Click="BtnCreatePR_OnClick"/>
+        <Button Content="Open Excel File" HorizontalAlignment="Left" Margin="271,184,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
+        <Label Content="Select Sheet" HorizontalAlignment="Left" Margin="181,228,0,0" VerticalAlignment="Top"/>
+        <ComboBox Name="CmbWorkSheet" HorizontalAlignment="Left" Margin="371,228,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbWorkSheet_SelectionChanged"/>
+        <Label Content="Select Repository" HorizontalAlignment="Left" Margin="181,91,0,0" VerticalAlignment="Top"/>
+        <ComboBox Name="CmbRepository" HorizontalAlignment="Left" Margin="367,91,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="CmbRepository_SelectionChanged"/>
+        <Label Content="Select Head BranchName" HorizontalAlignment="Left" Margin="181,134,0,0" VerticalAlignment="Top"/>
+        <Label Content="New BranchName" HorizontalAlignment="Left" Margin="181,274,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="372,275,0,0" TextWrapping="Wrap" Text="Test_10_1" VerticalAlignment="Top" Width="120"/>
+        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Left" Margin="306,404,0,0" VerticalAlignment="Top" Width="75" Click="BtnCreatePR_OnClick"/>
+        <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="367,134,0,0" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Reviewer Id" HorizontalAlignment="Left" Margin="185,320,0,0" VerticalAlignment="Top"/>
+        <ComboBox Name="CmbReviewer" HorizontalAlignment="Left" Margin="373,320,0,0" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>
