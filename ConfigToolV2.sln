@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigToolV2", "ConfigToolV
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigToolLibrary2", "ConfigToolLibrary2\ConfigToolLibrary2.csproj", "{575AFAC8-793E-4371-B91B-CF2A44BBC49C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigToolWPF", "ConfigToolWPF\ConfigToolWPF.csproj", "{E7CEE22B-2B2D-4267-8484-A7B7B46DF728}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{575AFAC8-793E-4371-B91B-CF2A44BBC49C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{575AFAC8-793E-4371-B91B-CF2A44BBC49C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{575AFAC8-793E-4371-B91B-CF2A44BBC49C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7CEE22B-2B2D-4267-8484-A7B7B46DF728}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7CEE22B-2B2D-4267-8484-A7B7B46DF728}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7CEE22B-2B2D-4267-8484-A7B7B46DF728}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7CEE22B-2B2D-4267-8484-A7B7B46DF728}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
