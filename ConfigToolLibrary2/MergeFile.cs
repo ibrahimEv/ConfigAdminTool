@@ -22,7 +22,7 @@ namespace ConfigToolLibrary2
         public int PrimaryKey { get; set; }
         public Dictionary<string, IDictionary<string, object>> NewAddedObjects { get; set; }
         public Dictionary<string, IDictionary<string, object>> DefaultObject { get; set; }
-        public Factory fact { get; set; }
+        public Factory Factory { get; set; }
 
         public MergeFile()
         {
@@ -34,14 +34,14 @@ namespace ConfigToolLibrary2
             FinalFile = new List<string>();
             DefaultObject = new Dictionary<string, IDictionary<string, object>>();
             DefaultObject.Add("Default", new Dictionary<string, object>());
-            fact = new Factory();
+            Factory = new Factory();
         }
 
         public List<string> Merge(List<string> oldSqlFile, List<string> newFileChanges)
         {
             ContainsSelect = Util.GetSelectStatements(oldSqlFile);
-            var oldSelectStatementsObjects = fact.GetDynamicObjects(ContainsSelect);
-            var newSelectStatementsObjects = fact.GetDynamicObjects(newFileChanges,  fact.flag);
+            var oldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
+            var newSelectStatementsObjects = Factory.GetDynamicObjects(newFileChanges,  Factory.Flag);
             this.MakeDefaultObject(oldSelectStatementsObjects);
             this.GetPrimaryKey();
             NewAddedObjects = this.GetDeepCopy(newSelectStatementsObjects, NewAddedObjects);
@@ -75,7 +75,7 @@ namespace ConfigToolLibrary2
                 FinalFile.Add(Util.WithoutSelect[i]);
             }
 
-            return FinalFile.Select(x=>x.Replace('#',',')).ToList();
+            return FinalFile;//.Select(x=>x.Replace('#',',')).ToList();
         }
 
 

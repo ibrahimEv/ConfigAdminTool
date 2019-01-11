@@ -11,8 +11,8 @@ namespace ConfigToolLibrary2
 {
     public class Factory
     {
-        public bool flag=false;
-        public int counter=0;
+        public bool Flag=false;
+        public int Cnt=0;
 
         public static string KeyGenerator(List<string> keys,bool flag01)
         {
@@ -33,11 +33,11 @@ namespace ConfigToolLibrary2
                 new Dictionary<string, IDictionary<string, object>>();
             foreach (var Statement in selectStatements)
             {
-                counter++;
+                Cnt++;
                 List<string> Property = UtilClass.StringSplitter(Statement);
                 if (Property.Count % 2 == 1)
                 {
-                    Property.Insert(0,"PrimaryKey"+counter);
+                    Property.Insert(0,"PrimaryKey"+Cnt);
                 }
 
                     var key = KeyGenerator(Property, flag01);
@@ -54,9 +54,9 @@ namespace ConfigToolLibrary2
                 }
                 catch
                 {
-                    this.flag = true;
+                    this.Flag = true;
                     ListOFObjects.Clear();
-                    return GetDynamicObjects(selectStatements,this.flag);
+                    return GetDynamicObjects(selectStatements,this.Flag);
                   
                 }
                     
