@@ -87,6 +87,7 @@ namespace ConfigToolWPF
             CmbBranches.ItemsSource = allBranches;
             List<string> reviewers = await _githubHelper.GetAllCollaborators();
             CmbReviewer.ItemsSource = reviewers;
+            //ListReviewers.ItemsSource = reviewers;
         }
 
         private async void BtnCreatePR_OnClick(object sender, RoutedEventArgs e)
@@ -95,10 +96,10 @@ namespace ConfigToolWPF
             string newBranchName = TxtNewBranchName.Text;
             string reviewerName = CmbReviewer.SelectedValue.ToString();
 
-            var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
-            var t1 = await _githubHelper.UpdateFile(GithubFilePath, string.Join("\n", MergedFile), newBranchName);
-            int prNumber = await _githubHelper.CreatePullRequest("New PR " + newBranchName, headBranchName, newBranchName);
-            int temp = await _githubHelper.AddReviewerToPullRequest(prNumber, new List<string>() { reviewerName });
+            //var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
+            //var t1 = await _githubHelper.UpdateFile(GithubFilePath, string.Join("\n", MergedFile), newBranchName);
+            //int prNumber = await _githubHelper.CreatePullRequest("New PR " + newBranchName, headBranchName, newBranchName);
+            //int temp = await _githubHelper.AddReviewerToPullRequest(prNumber, new List<string>() { reviewerName });
         }
 
         private void MainWindow_OnClosed(object sender, EventArgs e)
