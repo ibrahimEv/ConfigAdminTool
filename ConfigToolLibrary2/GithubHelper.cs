@@ -42,7 +42,7 @@ namespace ConfigToolLibrary2
                 var regex = new Regex("\'(.*?)\'");
                 List<string> fileContentList = fileContent.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.None).ToList();
 
-                fileContentList = fileContentList.Select(x => regex.Replace(x, m => m.Value.Replace(',', '#'))).ToList();
+                fileContentList = fileContentList.Select(x => regex.Replace(x, m => m.Value.Replace(",", Constants.ReplaceCharsForComma))).ToList();
 
                 return fileContentList;
             }
