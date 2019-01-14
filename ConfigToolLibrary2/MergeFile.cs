@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Security.AccessControl;
 using System.Runtime.Serialization.Formatters.Binary;
+using NLog;
 
 namespace ConfigToolLibrary2
 {
@@ -23,6 +24,7 @@ namespace ConfigToolLibrary2
         public Dictionary<string, IDictionary<string, object>> NewAddedObjects { get; set; }
         public Dictionary<string, IDictionary<string, object>> DefaultObject { get; set; }
         public Factory Factory { get; set; }
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public MergeFile()
         {
@@ -42,6 +44,11 @@ namespace ConfigToolLibrary2
             ContainsSelect = Util.GetSelectStatements(oldSqlFile);
             var oldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
             var newSelectStatementsObjects = Factory.GetDynamicObjects(newFileChanges, Factory.Flag);
+                if (!oldSelectStatementsObjects.First().Key.Contains("X") && newSelectStatementsObjects.First().Key.Contains("X"))
+                {
+                    logger.Log(LogLevel.Info, $"Excel File Contain Duplicate Key");
+                throw new Exception("Excel File Contain Duplicate Key");
+                }
             this.MakeDefaultObject(oldSelectStatementsObjects);
             this.GetPrimaryKey();
             NewAddedObjects = this.GetDeepCopy(newSelectStatementsObjects, NewAddedObjects);
@@ -75,6 +82,7 @@ namespace ConfigToolLibrary2
                 FinalFile.Add(Util.WithoutSelect[i]);
             }
 
+            var t = FinalFile.Select(x => x.Replace(Constants.ReplaceCharsForComma, ",")).ToList();
             return FinalFile.Select(x => x.Replace(Constants.ReplaceCharsForComma, ",")).ToList();
         }
 
