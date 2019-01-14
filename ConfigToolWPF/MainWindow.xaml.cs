@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -86,25 +87,46 @@ namespace ConfigToolWPF
             List<string> allBranches = await _githubHelper.GetAllBranches();
             CmbBranches.ItemsSource = allBranches;
             List<string> reviewers = await _githubHelper.GetAllCollaborators();
-            CmbReviewer.ItemsSource = reviewers;
-            //ListReviewers.ItemsSource = reviewers;
+            ListReviewers.ItemsSource = reviewers;
         }
 
         private async void BtnCreatePR_OnClick(object sender, RoutedEventArgs e)
         {
             string headBranchName = CmbBranches.SelectedValue.ToString();
             string newBranchName = TxtNewBranchName.Text;
-            string reviewerName = CmbReviewer.SelectedValue.ToString();
-
+            List<string> reviewerNames = new List<string>();
+            foreach (var reviewer in ListReviewers.SelectedItems)
+            {
+                reviewerNames.Add(reviewer.ToString());
+            }
+            
             //var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
             //var t1 = await _githubHelper.UpdateFile(GithubFilePath, string.Join("\n", MergedFile), newBranchName);
             //int prNumber = await _githubHelper.CreatePullRequest("New PR " + newBranchName, headBranchName, newBranchName);
-            //int temp = await _githubHelper.AddReviewerToPullRequest(prNumber, new List<string>() { reviewerName });
+            //int temp = await _githubHelper.AddReviewerToPullRequest(prNumber, reviewerNames);
         }
 
         private void MainWindow_OnClosed(object sender, EventArgs e)
         {
             _excelHelper.CloseExcel();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            SubWindow window = new SubWindow();
+            window.TxtMergedFile.Text = string.Join("\n", MergedFile);
+            window.Show();
+        }
+
+        private void ShowLoading()
+        {
+            this.Cursor = Cursors.Wait;
+            this.Opacity = 0.8;
+        }
+        private void ResetLoading()
+        {
+            this.Cursor = Cursors.Arrow;
+            this.Opacity = 1;
         }
     }
 }

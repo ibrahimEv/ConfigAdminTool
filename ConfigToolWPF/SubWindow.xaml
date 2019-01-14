@@ -1,0 +1,18 @@
+﻿<Window x:Class="ConfigToolWPF.SubWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ConfigToolWPF"
+        mc:Ignorable="d"
+        Background="#bcc0dd"
+        Title="Merged File" Height="450" Width="800">
+    <Grid>
+        <ScrollViewer Height="300">
+        <TextBlock Name="TxtMergedFile" HorizontalAlignment="Left" Margin="46,19,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="682"
+                   Background="LightGray" Foreground="Blue"/>
+        </ScrollViewer>
+        <Button Name="BtnClose" Content="Close" Click="BtnClose_OnClick" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="310,380,0,0"/>
+
+    </Grid>
+</Window>

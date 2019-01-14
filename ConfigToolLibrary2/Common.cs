@@ -11,7 +11,7 @@ namespace ConfigToolLibrary2
         {
             List<string> columnNamesSql = columnNamesSqlWithType.Select(col => col.Substring(0, col.IndexOf(':'))).ToList();
             SpellChecker checker = new SpellChecker();
-            checker.AddWordsToDictionary(columnNamesSqlWithType);
+            checker.AddWordsToDictionary(columnNamesSql);
             Dictionary<string, int> columnMapping = new Dictionary<string, int>();
 
             for (int i = 0; i < columnNamesExcel.Count; i++)
@@ -20,7 +20,7 @@ namespace ConfigToolLibrary2
                 {
                     logger.Log(LogLevel.Debug, $"Excel column : {columnNamesExcel[i]} , sql column : {columnNamesSql[i]}");
                     columnMapping.Add(columnNamesSqlWithType[i].Trim(), i + 1);
-                    checker.RemoveWordFromDictionary(columnNamesSqlWithType[i]);
+                    checker.RemoveWordFromDictionary(columnNamesSql[i]);
                     columnNamesSqlWithType[i] = string.Empty;
                 }
                 else
@@ -29,7 +29,7 @@ namespace ConfigToolLibrary2
                     if (!string.IsNullOrEmpty(spellCheck))
                     {
                         logger.Log(LogLevel.Debug, $"Excel column : {columnNamesExcel[i]} , sql column : {spellCheck}");
-                        string colWithType = columnNamesSqlWithType.Single(col => col.Equals(spellCheck));
+                        string colWithType = columnNamesSqlWithType.Single(col => col.StartsWith(spellCheck));
                         columnMapping.Add(colWithType, i + 1);
                         checker.RemoveWordFromDictionary(spellCheck);
                         columnNamesSqlWithType[columnNamesSqlWithType.IndexOf(colWithType)] = string.Empty;
