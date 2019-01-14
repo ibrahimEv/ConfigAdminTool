@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Vbe.Interop;
+using NLog;
 
 namespace ConfigToolLibrary2
 {
@@ -13,6 +14,7 @@ namespace ConfigToolLibrary2
     {
         public bool Flag=false;
         public int Cnt=0;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public static string KeyGenerator(List<string> keys,bool flag01)
         {
@@ -54,6 +56,11 @@ namespace ConfigToolLibrary2
                 }
                 catch
                 {
+                    if (ListOFObjects.First().Key.Contains("X"))
+                    {
+                        logger.Log(LogLevel.Info, $"File Does Not Contain Primary And Unique Key");
+                        throw  new Exception("File Does Not Contain Primary And Unique Key");
+                    }
                     this.Flag = true;
                     ListOFObjects.Clear();
                     return GetDynamicObjects(selectStatements,this.Flag);
