@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using ConfigToolLibrary2;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ConfigToolLibrary2;
+using System.Windows.Threading;
 
 namespace ConfigToolWPF
 {
@@ -71,7 +63,7 @@ namespace ConfigToolWPF
         private async void CmbWorkSheet_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ShowLoading();
-            string headBranchName = ConfigurationManager.AppSettings["HeadBranchName"];
+            string headBranchName = CmbBranches.SelectedValue.ToString();
             int index = CmbWorkSheet.SelectedIndex;
             string tableName = _excelHelper.SelectWorkSheet(index + 1);
 
@@ -132,13 +124,28 @@ namespace ConfigToolWPF
 
         private void ShowLoading()
         {
-            this.Cursor = Cursors.Wait;
-            this.Opacity = 0.8;
+            Dispatcher disp = Dispatcher.CurrentDispatcher;
+            new Thread(() => {
+                // Code executing in other thread
+                
+                    // Invoke Main Thread UI updates
+                    disp.Invoke(
+                        () =>
+                        {
+
+                            pbStatus.IsIndeterminate = true;
+                        }
+                    );
+
+            }).Start();
+            //this.Dispatcher.Invoke(DispatcherPriority.Render, new Action(delegate() { pbStatus.IsIndeterminate = true; }
+            //));
+            //this.Opacity = 0.8;
         }
         private void HideLoading()
         {
-            this.Cursor = Cursors.Arrow;
-            this.Opacity = 1;
+            pbStatus.IsIndeterminate = false;
+            //this.Opacity = 1;
         }
 
         private void BtnExit_OnClick(object sender, RoutedEventArgs e)
