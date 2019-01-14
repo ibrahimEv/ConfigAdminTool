@@ -109,23 +109,54 @@ namespace ConfigToolLibrary2
             return newCollection;
         }
 
+        /* public void UpdateObjects(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects,
+             Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
+         {
+             var duplicateOldObj = new Dictionary<string, IDictionary<string, object>>();
+             duplicateOldObj = this.GetDeepCopy(oldSelectStatementsObjects, duplicateOldObj);
+             var comparer = StringComparison.OrdinalIgnoreCase;
+
+             foreach (var newObject in newSelectStatementsObjects)
+             {
+                 foreach (var oldObject in duplicateOldObj)
+                 {
+                     if (newObject.Key == oldObject.Key)
+                     {
+                         var val = oldSelectStatementsObjects[newObject.Key];
+                         foreach (var newValue in newObject.Value)
+                         {
+                             foreach (var oldObj in oldObject.Value)
+                             {
+                                 if (String.Equals(newValue.Key.Trim(), oldObj.Key.Trim(), comparer))
+                                 {
+                                     val[oldObj.Key] = newValue.Value;
+                                 }
+
+                             }
+
+                         }
+
+                         NewAddedObjects.Remove(oldObject.Key);
+                     }
+                 }
+             }
+
+         }*/
         public void UpdateObjects(Dictionary<string, IDictionary<string, object>> newSelectStatementsObjects,
             Dictionary<string, IDictionary<string, object>> oldSelectStatementsObjects)
         {
-            var duplicateOldObj = new Dictionary<string, IDictionary<string, object>>();
-            duplicateOldObj = this.GetDeepCopy(oldSelectStatementsObjects, duplicateOldObj);
             var comparer = StringComparison.OrdinalIgnoreCase;
 
             foreach (var newObject in newSelectStatementsObjects)
             {
-                foreach (var oldObject in duplicateOldObj)
+                foreach (var oldObject in oldSelectStatementsObjects)
                 {
                     if (newObject.Key == oldObject.Key)
                     {
                         var val = oldSelectStatementsObjects[newObject.Key];
                         foreach (var newValue in newObject.Value)
                         {
-                            foreach (var oldObj in oldObject.Value)
+                            foreach (var oldObj in oldObject.Value.ToList())
                             {
                                 if (String.Equals(newValue.Key.Trim(), oldObj.Key.Trim(), comparer))
                                 {
@@ -133,7 +164,7 @@ namespace ConfigToolLibrary2
                                 }
 
                             }
-                           
+
                         }
 
                         NewAddedObjects.Remove(oldObject.Key);
@@ -156,7 +187,7 @@ namespace ConfigToolLibrary2
                     {
                         foreach (var val in duplicateObj.First().Value)
                         {
-                            if (String.Equals(val.Key, obj.Key, comparer))
+                            if (String.Equals(val.Key.Trim(), obj.Key.Trim(), comparer))
                             {
                                 DefaultObject.First().Value[val.Key] = $" {++PrimaryKey} ";
                             }
@@ -167,7 +198,7 @@ namespace ConfigToolLibrary2
                     {
                         foreach (var val in duplicateObj.First().Value)
                         {
-                            if (String.Equals(val.Key, obj.Key, comparer))
+                            if (String.Equals(val.Key.Trim(), obj.Key.Trim(), comparer))
                             {
                                 DefaultObject.First().Value[val.Key] = obj.Value;
                             }
