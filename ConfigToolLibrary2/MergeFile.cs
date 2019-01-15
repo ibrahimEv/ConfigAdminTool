@@ -34,8 +34,10 @@ namespace ConfigToolLibrary2
             NewAddedSelects = new List<string>();
             NewAddedObjects = new Dictionary<string, IDictionary<string, object>>();
             FinalFile = new List<string>();
-            DefaultObject = new Dictionary<string, IDictionary<string, object>>();
-            DefaultObject.Add("Default", new Dictionary<string, object>());
+            DefaultObject = new Dictionary<string, IDictionary<string, object>>
+            {
+                { "Default", new Dictionary<string, object>() }
+            };
             Factory = new Factory();
         }
 
