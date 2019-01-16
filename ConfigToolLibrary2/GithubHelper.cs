@@ -130,8 +130,11 @@ namespace ConfigToolLibrary2
         {
             try
             {
-                //var searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
-                var searchCodeRequest = new SearchCodeRequest(tableName, "mayuresh-evh", repositoryName);
+                SearchCodeRequest searchCodeRequest;
+                if (repositoryName == "Test")
+                    searchCodeRequest = new SearchCodeRequest(tableName, "mayuresh-evh", repositoryName);
+                else
+                    searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
                 logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
                 var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
                 string path = String.Empty;

@@ -8,7 +8,7 @@
         Closed="MainWindow_OnClosed"
         Title="Config Automation" Height="650" Width="650" Background="#bcc0dd">
     <Grid>
-        <!--<Label Content="Config Admin Automation" HorizontalAlignment="Center" FontSize="35" FontWeight="Bold" />-->
+        <Label Content="Config Admin Automation" HorizontalAlignment="Center" FontSize="35" FontWeight="Bold" />
         <Button Content="Open Excel File" HorizontalAlignment="Left" Margin="234,180,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
         <Label Content="Select Sheet" HorizontalAlignment="Left" Margin="111,228,0,0" VerticalAlignment="Top"/>
         <ComboBox Name="CmbWorkSheet" HorizontalAlignment="Left" Margin="301,228,0,0" VerticalAlignment="Top" Width="211" SelectionChanged="CmbWorkSheet_SelectionChanged"/>
@@ -17,14 +17,15 @@
         <Label Content="Select Head BranchName" HorizontalAlignment="Left" Margin="111,134,0,0" VerticalAlignment="Top"/>
         <Label Content="New BranchName" HorizontalAlignment="Left" Margin="111,274,0,0" VerticalAlignment="Top"/>
         <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="302,275,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
-        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Left" Margin="403,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnCreatePR_OnClick"/>
+        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Left" Margin="223,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnCreatePR_OnClick"/>
         <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="297,134,0,0" VerticalAlignment="Top" Width="215"/>
         <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="111,380,0,0" VerticalAlignment="Top"/>
         <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="302,380,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
-        <Button Content="Show File" HorizontalAlignment="Left" Margin="135,555,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
-        <Button Name="BtnExit" Content="Exit" HorizontalAlignment="Left" Margin="265,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnExit_OnClick"/>
+        <Button Content="Show File" HorizontalAlignment="Left" Margin="105,555,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
+        <Button Name="BtnExit" Content="Exit" HorizontalAlignment="Left" Margin="467,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnExit_OnClick"/>
         <Label Content="PR title" HorizontalAlignment="Left" Margin="111,324,0,0" VerticalAlignment="Top"/>
         <TextBox Name="TxtPRNumber" HorizontalAlignment="Left" Height="23" Margin="302,325,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
         <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" IsIndeterminate="false"  Margin="111,509,122,82" />
+        <Button Name="BtnReset" Content="Reset" HorizontalAlignment="Left" Margin="345,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnReset_OnClick"/>
     </Grid>
 </Window>

@@ -14,16 +14,16 @@ namespace ConfigToolLibrary2
 {
     public class MergeFile
     {
-        public List<string> FinalFile { get; set; }
-        public List<string> NewUpdatedSelects { get; set; }
-        public List<string> ContainsSelect { get; set; }
-        public List<string> NewAddedSelects { get; set; }
-        public List<string> NewSqlFile { get; set; }
-        public UtilClass Util { get; set; }
-        public int PrimaryKey { get; set; }
-        public Dictionary<string, IDictionary<string, object>> NewAddedObjects { get; set; }
-        public Dictionary<string, IDictionary<string, object>> DefaultObject { get; set; }
-        public Factory Factory { get; set; }
+        private List<string> FinalFile { get; set; }
+        private List<string> NewUpdatedSelects { get; set; }
+        private List<string> ContainsSelect { get; set; }
+        private List<string> NewAddedSelects { get; set; }
+        private List<string> NewSqlFile { get; set; }
+        private UtilClass Util { get; set; }
+        private int PrimaryKey { get; set; }
+        private Dictionary<string, IDictionary<string, object>> NewAddedObjects { get; set; }
+        private Dictionary<string, IDictionary<string, object>> DefaultObject { get; set; }
+        private Factory Factory { get; set; }
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public MergeFile()
@@ -46,11 +46,11 @@ namespace ConfigToolLibrary2
             ContainsSelect = Util.GetSelectStatements(oldSqlFile);
             var oldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
             var newSelectStatementsObjects = Factory.GetDynamicObjects(newFileChanges, Factory.Flag);
-                if (!oldSelectStatementsObjects.First().Key.Contains("X") && newSelectStatementsObjects.First().Key.Contains("X"))
-                {
-                    logger.Log(LogLevel.Info, $"Excel File Contain Duplicate Key");
+            if (!oldSelectStatementsObjects.First().Key.Contains("X") && newSelectStatementsObjects.First().Key.Contains("X"))
+            {
+                logger.Log(LogLevel.Info, $"Excel File Contain Duplicate Key");
                 throw new Exception("Excel File Contain Duplicate Key");
-                }
+            }
             this.MakeDefaultObject(oldSelectStatementsObjects);
             this.GetPrimaryKey();
             NewAddedObjects = this.GetDeepCopy(newSelectStatementsObjects, NewAddedObjects);

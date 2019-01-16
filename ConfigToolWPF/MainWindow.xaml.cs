@@ -62,33 +62,39 @@ namespace ConfigToolWPF
 
         private async void CmbWorkSheet_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ShowLoading();
-            string headBranchName = CmbBranches.SelectedValue.ToString();
-            int index = CmbWorkSheet.SelectedIndex;
-            string tableName = _excelHelper.SelectWorkSheet(index + 1);
+            if (CmbWorkSheet.SelectedIndex != -1)
+            {
+                ShowLoading();
+                string headBranchName = CmbBranches.SelectedValue.ToString();
+                int index = CmbWorkSheet.SelectedIndex;
+                string tableName = _excelHelper.SelectWorkSheet(index + 1);
 
-            GithubFilePath = await _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString());
+                GithubFilePath = await _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString());
 
-            List<string> contentGithubFile = await _githubHelper.GetContentOfFile(GithubFilePath, headBranchName);
-            List<string> sql = _githubHelper.GetColumnNames(contentGithubFile);
-            List<string> excelCol = _excelHelper.GetColumnNames();
-            Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
-            List<string> sqlFromExcel = _excelHelper.GetSqlFromCurrentSheet(columnMappings);
+                List<string> contentGithubFile = await _githubHelper.GetContentOfFile(GithubFilePath, headBranchName);
+                List<string> sql = _githubHelper.GetColumnNames(contentGithubFile);
+                List<string> excelCol = _excelHelper.GetColumnNames();
+                Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
+                List<string> sqlFromExcel = _excelHelper.GetSqlFromCurrentSheet(columnMappings);
 
-            MergedFile = _mergeFile.Merge(contentGithubFile, sqlFromExcel);
-            HideLoading();
+                MergedFile = _mergeFile.Merge(contentGithubFile, sqlFromExcel);
+                HideLoading();
+            }
         }
 
         private async void CmbRepository_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ShowLoading();
-            string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
-            _githubHelper = new GithubHelper(CmbRepository.SelectedValue.ToString(), githubUserToken);
-            List<string> allBranches = await _githubHelper.GetAllBranches();
-            CmbBranches.ItemsSource = allBranches;
-            List<string> reviewers = await _githubHelper.GetAllCollaborators();
-            ListReviewers.ItemsSource = reviewers;
-            HideLoading();
+            if (CmbRepository.SelectedIndex != -1)
+            {
+                ShowLoading();
+                string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
+                _githubHelper = new GithubHelper(CmbRepository.SelectedValue.ToString(), githubUserToken);
+                List<string> allBranches = await _githubHelper.GetAllBranches();
+                CmbBranches.ItemsSource = allBranches;
+                List<string> reviewers = await _githubHelper.GetAllCollaborators();
+                ListReviewers.ItemsSource = reviewers;
+                HideLoading();
+            }
         }
 
         private async void BtnCreatePR_OnClick(object sender, RoutedEventArgs e)
@@ -102,10 +108,15 @@ namespace ConfigToolWPF
                 reviewerNames.Add(reviewer.ToString());
             }
 
-            //var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
-            //var t1 = await _githubHelper.UpdateFile(GithubFilePath, string.Join("\n", MergedFile), newBranchName);
+            var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
+            var t1 = await _githubHelper.UpdateFile(GithubFilePath, string.Join("\n", MergedFile), newBranchName);
             int prNumber = await _githubHelper.CreatePullRequest(TxtPRNumber.Text, headBranchName, newBranchName);
-            //int temp = await _githubHelper.AddReviewerToPullRequest(prNumber, reviewerNames);
+            if (reviewerNames.Count != 0)
+            {
+                await _githubHelper.AddReviewerToPullRequest(prNumber, reviewerNames);
+            }
+
+            MessageBox.Show("PR created successfully with number : " + prNumber, "Success");
             HideLoading();
         }
 
@@ -125,17 +136,18 @@ namespace ConfigToolWPF
         private void ShowLoading()
         {
             Dispatcher disp = Dispatcher.CurrentDispatcher;
-            new Thread(() => {
+            new Thread(() =>
+            {
                 // Code executing in other thread
-                
-                    // Invoke Main Thread UI updates
-                    disp.Invoke(
-                        () =>
-                        {
 
-                            pbStatus.IsIndeterminate = true;
-                        }
-                    );
+                // Invoke Main Thread UI updates
+                disp.Invoke(
+                    () =>
+                    {
+
+                        pbStatus.IsIndeterminate = true;
+                    }
+                );
 
             }).Start();
             //this.Dispatcher.Invoke(DispatcherPriority.Render, new Action(delegate() { pbStatus.IsIndeterminate = true; }
@@ -150,7 +162,18 @@ namespace ConfigToolWPF
 
         private void BtnExit_OnClick(object sender, RoutedEventArgs e)
         {
-           Application.Current.Shutdown();
+            Application.Current.Shutdown();
+        }
+
+        private void BtnReset_OnClick(object sender, RoutedEventArgs e)
+        {
+            CmbRepository.SelectedIndex = -1;
+            CmbBranches.SelectedIndex = -1;
+            CmbWorkSheet.SelectedIndex = -1;
+
+            TxtPRNumber.Text = string.Empty;
+            TxtNewBranchName.Text = string.Empty;
+            ListReviewers.ItemsSource = null;
         }
     }
 }
