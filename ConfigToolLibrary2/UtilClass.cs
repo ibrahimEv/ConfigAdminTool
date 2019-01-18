@@ -18,6 +18,8 @@ namespace ConfigToolLibrary2
         {
             ContainsSelect = new List<string>();
             WithoutSelect = new List<string>();
+            AfterSelect = new List<string>();
+            BeforeSelect = new List<string>();
         }
 
         public List<string> GetSelectStatements(List<string> AllLines)

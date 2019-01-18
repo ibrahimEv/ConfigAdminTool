@@ -29,6 +29,7 @@ namespace ConfigToolLibrary2
         public MergeFile()
         {
             Util = new UtilClass();
+            ContainsSelect = new List<string>();
             NewSqlFile = new List<string>();
             NewUpdatedSelects = new List<string>();
             NewAddedSelects = new List<string>();
@@ -43,6 +44,7 @@ namespace ConfigToolLibrary2
 
         public List<string> Merge(List<string> oldSqlFile, List<string> newFileChanges)
         {
+            this.Reset();
             ContainsSelect = Util.GetSelectStatements(oldSqlFile);
             var oldSelectStatementsObjects = Factory.GetDynamicObjects(ContainsSelect);
             var newSelectStatementsObjects = Factory.GetDynamicObjects(newFileChanges, Factory.Flag);
@@ -242,6 +244,32 @@ namespace ConfigToolLibrary2
                 NewUpdatedSelects[NewUpdatedSelects.Count - 1] = NewUpdatedSelects[NewUpdatedSelects.Count - 1].Replace(Keywords.UNION_ALL, "");
             }
 
+        }
+
+        public void Reset()
+        {
+            this.ContainsSelect.Clear();
+            this.Factory.Cnt = 0;
+            this.Factory.Flag = false;
+            this.FinalFile.Clear();
+            this.NewAddedSelects.Clear();
+            this.NewUpdatedSelects.Clear();
+            this.PrimaryKey = 0;
+            this.Util.ContainsSelect.Clear();
+            this.Util.AfterSelect.Clear();
+            this.Util.BeforeSelect.Clear();
+            this.Util.WithoutSelect.Clear();
+            this.ClearAll(this.DefaultObject);
+            this.ClearAll(this.NewAddedObjects);
+            this.NewAddedObjects.Clear();
+        }
+
+        public void ClearAll(Dictionary<string,IDictionary<string,object>> dictionaryObjs)
+        {
+            foreach (var obj in dictionaryObjs)
+            {
+                obj.Value.Clear();
+            }
         }
 
 
