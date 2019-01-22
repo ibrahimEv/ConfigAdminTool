@@ -94,14 +94,29 @@ namespace ConfigToolLibrary2
             List<string> sqlQueries = new List<string>();
             try
             {
+                string emptyQuery = "SELECT ";
                 range = CurrentWorksheet.UsedRange;
                 int rw = range.Rows.Count;
+
+                //To handle empty rows
+                foreach (var col in columnMapping)
+                {
+                    if (col.Key.ToLower().Contains("varchar"))
+                    {
+                        emptyQuery += $"'' AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                    }
+                    else
+                        emptyQuery += $" AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                }
+                emptyQuery = emptyQuery.TrimEnd(new[] { ',', ' ' });
+                emptyQuery += " UNION ALL";
 
                 for (int rCnt = 2; rCnt <= rw; rCnt++)
                 {
                     string sqlQuery = "SELECT ";
                     foreach (var col in columnMapping)
                     {
+                        var t = (range.Rows[1] as Excel.Range).Text.ToString();
                         string cellValue = (range.Cells[rCnt, col.Value] as Excel.Range).Text.ToString();
                         if (col.Key.ToLower().Contains("varchar"))
                         {
@@ -116,6 +131,7 @@ namespace ConfigToolLibrary2
                     sqlQueries.Add(sqlQuery);
                 }
 
+                sqlQueries.RemoveAll(q => q.Equals(emptyQuery));
                 return sqlQueries;
             }
             catch (Exception ex)

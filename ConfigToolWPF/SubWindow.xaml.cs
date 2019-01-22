@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using ConfigToolWPF.Model;
 
 namespace ConfigToolWPF
 {
@@ -19,9 +20,28 @@ namespace ConfigToolWPF
     /// </summary>
     public partial class SubWindow : Window
     {
-        public SubWindow()
+        private static FileDetail _fileDetail;
+        public SubWindow(FileDetail fileDetail)
         {
+            _fileDetail = fileDetail;
+            this.Title = $"Merge_{_fileDetail.TableName}.sql";
             InitializeComponent();
+            LoadTextBlock();
+        }
+
+        private void LoadTextBlock()
+        {
+            foreach (var mergedLine in _fileDetail.MergedFileContentList)
+            {
+                if (_fileDetail.GithubFileContentList.Contains(mergedLine))
+                    TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Blue });
+                else
+                {
+                    TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Red });
+                }
+            }
+
+
         }
 
         private void BtnClose_OnClick(object sender, RoutedEventArgs e)

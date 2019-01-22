@@ -1,13 +1,16 @@
 ﻿using ConfigToolLibrary2;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ConfigToolWPF.Model;
 
 namespace ConfigToolWPF
 {
@@ -19,8 +22,10 @@ namespace ConfigToolWPF
         private static ExcelHelper _excelHelper;
         private static GithubHelper _githubHelper;
         private static MergeFile _mergeFile;
-        public string GithubFilePath { get; set; }
-        public List<string> MergedFile { get; set; }
+
+        private List<FileDetail> FileDetails { get; set; }
+        private List<ExcelSheet> ExcelSheets { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,6 +37,7 @@ namespace ConfigToolWPF
             _excelHelper = new ExcelHelper();
             _mergeFile = new MergeFile();
             CmbRepository.ItemsSource = new List<string>() { "IdentifiData", "user-admin-data", "Test" };
+            FileDetails = new List<FileDetail>();
         }
 
 
@@ -53,33 +59,13 @@ namespace ConfigToolWPF
                 string excelFileName = dlg.FileName;
                 TxtPRNumber.Text = Regex.Match(excelFileName, @"\d+").Value;
                 _excelHelper.LoadWorkBook(excelFileName);
-                CmbWorkSheet.ItemsSource = _excelHelper.GetAllWorkSheetNames();
-
+                var t = _excelHelper.GetAllWorkSheetNames();
+                LblExcelFilePath.Content = excelFileName;
+                ExcelSheets = t.Select((value, index) => new ExcelSheet() { Id = ++index, SheetName = value }).ToList();
+                DataGridExcel.ItemsSource = ExcelSheets;
             }
 
             HideLoading();
-        }
-
-        private async void CmbWorkSheet_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (CmbWorkSheet.SelectedIndex != -1)
-            {
-                ShowLoading();
-                string headBranchName = CmbBranches.SelectedValue.ToString();
-                int index = CmbWorkSheet.SelectedIndex;
-                string tableName = _excelHelper.SelectWorkSheet(index + 1);
-
-                GithubFilePath = await _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString());
-
-                List<string> contentGithubFile = await _githubHelper.GetContentOfFile(GithubFilePath, headBranchName);
-                List<string> sql = _githubHelper.GetColumnNames(contentGithubFile);
-                List<string> excelCol = _excelHelper.GetColumnNames();
-                Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
-                List<string> sqlFromExcel = _excelHelper.GetSqlFromCurrentSheet(columnMappings);
-
-                MergedFile = _mergeFile.Merge(contentGithubFile, sqlFromExcel);
-                HideLoading();
-            }
         }
 
         private async void CmbRepository_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -100,23 +86,34 @@ namespace ConfigToolWPF
         private async void BtnCreatePR_OnClick(object sender, RoutedEventArgs e)
         {
             ShowLoading();
-            string headBranchName = CmbBranches.SelectedValue.ToString();
-            string newBranchName = TxtNewBranchName.Text;
-            List<string> reviewerNames = new List<string>();
-            foreach (var reviewer in ListReviewers.SelectedItems)
+
+            if (FileDetails.Count != 0)
             {
-                reviewerNames.Add(reviewer.ToString());
+                string headBranchName = CmbBranches.SelectedValue.ToString();
+                string newBranchName = TxtNewBranchName.Text;
+                List<string> reviewerNames = new List<string>();
+                foreach (var reviewer in ListReviewers.SelectedItems)
+                {
+                    reviewerNames.Add(reviewer.ToString());
+                }
+
+                var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
+                foreach (var fileDetail in FileDetails)
+                {
+                    await _githubHelper.UpdateFile(fileDetail.GithubFilePath, string.Join("\n", fileDetail.MergedFileContentList), newBranchName);
+                }
+
+                int prNumber = await _githubHelper.CreatePullRequest(TxtPRNumber.Text, headBranchName, newBranchName);
+                if (reviewerNames.Count != 0)
+                {
+                    await _githubHelper.AddReviewerToPullRequest(prNumber, reviewerNames);
+                }
+
+                MessageBox.Show("PR created successfully with number : " + prNumber, "Success");
             }
 
-            var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
-            var t1 = await _githubHelper.UpdateFile(GithubFilePath, string.Join("\n", MergedFile), newBranchName);
-            int prNumber = await _githubHelper.CreatePullRequest(TxtPRNumber.Text, headBranchName, newBranchName);
-            if (reviewerNames.Count != 0)
-            {
-                await _githubHelper.AddReviewerToPullRequest(prNumber, reviewerNames);
-            }
+            else throw new Exception("Error creating PR no file merged.");
 
-            MessageBox.Show("PR created successfully with number : " + prNumber, "Success");
             HideLoading();
         }
 
@@ -125,12 +122,12 @@ namespace ConfigToolWPF
             _excelHelper.CloseExcel();
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void BtnShowFile_OnClick(object sender, RoutedEventArgs e)
         {
-            SubWindow window = new SubWindow();
+            //SubWindow window = new SubWindow();
 
-            window.TxtMergedFile.Text = string.Join("\n", MergedFile);
-            window.Show();
+            //window.TxtMergedFile.Text = string.Join("\n", MergedFile);
+            //window.Show();
         }
 
         private void ShowLoading()
@@ -145,7 +142,8 @@ namespace ConfigToolWPF
                     () =>
                     {
 
-                        pbStatus.IsIndeterminate = true;
+                        //pbStatus.IsIndeterminate = true;
+                        this.Opacity = 0.8;
                     }
                 );
 
@@ -156,8 +154,8 @@ namespace ConfigToolWPF
         }
         private void HideLoading()
         {
-            pbStatus.IsIndeterminate = false;
-            //this.Opacity = 1;
+            //pbStatus.IsIndeterminate = false;
+            this.Opacity = 1;
         }
 
         private void BtnExit_OnClick(object sender, RoutedEventArgs e)
@@ -169,11 +167,58 @@ namespace ConfigToolWPF
         {
             CmbRepository.SelectedIndex = -1;
             CmbBranches.SelectedIndex = -1;
-            CmbWorkSheet.SelectedIndex = -1;
 
             TxtPRNumber.Text = string.Empty;
             TxtNewBranchName.Text = string.Empty;
             ListReviewers.ItemsSource = null;
+
+            _excelHelper = new ExcelHelper();
+            _mergeFile = new MergeFile();
+        }
+
+        private void BtnShowMergedFile(object sender, RoutedEventArgs e)
+        {
+            ExcelSheet sheet = ((FrameworkElement)sender).DataContext as ExcelSheet;
+            var mergedFile = FileDetails.SingleOrDefault(fd => fd.TableName == sheet.SheetName);
+            if (mergedFile == null) throw new Exception("File not merged");
+
+            SubWindow window = new SubWindow(mergedFile);
+            window.Show();
+        }
+
+        private async void BtnStartMerge_OnClick(object sender, RoutedEventArgs e)
+        {
+            string headBranchName = CmbBranches.SelectedValue.ToString();
+            //remove code
+            FileDetails = new List<FileDetail>();
+            foreach (var sheet in ExcelSheets.Where(sheet => sheet.IsSelected))
+            {
+                FileDetail fd = new FileDetail();
+                sheet.MergeStatus = "In Progress";
+                DataGridExcel.Items.Refresh();
+
+                string tableName = _excelHelper.SelectWorkSheet(sheet.Id);
+                fd.TableName = tableName;
+                fd.GithubFilePath = await _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString());
+
+                List<string> contentGithubFile = await _githubHelper.GetContentOfFile(fd.GithubFilePath, headBranchName);
+                fd.GithubFileContentList = contentGithubFile.Select(c => c.Replace(Constants.ReplaceCharsForComma, ",")).ToList();
+
+                List<string> sql = _githubHelper.GetColumnNames(contentGithubFile);
+                List<string> excelCol = _excelHelper.GetColumnNames();
+                Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
+
+                List<string> sqlFromExcel = _excelHelper.GetSqlFromCurrentSheet(columnMappings);
+
+                MergeFile mf = new MergeFile();
+                List<string> mergedFile = mf.Merge(contentGithubFile, sqlFromExcel);
+                fd.MergedFileContentList = mergedFile;
+
+                sheet.MergeStatus = "Done";
+                DataGridExcel.Items.Refresh();
+                FileDetails.Add(fd);
+            }
         }
     }
+
 }

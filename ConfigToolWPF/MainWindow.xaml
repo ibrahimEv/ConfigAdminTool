@@ -6,26 +6,51 @@
         xmlns:local="clr-namespace:ConfigToolWPF"
         mc:Ignorable="d"
         Closed="MainWindow_OnClosed"
-        Title="Config Automation" Height="650" Width="650" Background="#bcc0dd">
+        Title="Config Automation" Height="850" Width="650" Background="#bcc0dd">
     <Grid>
+
         <Label Content="Config Admin Automation" HorizontalAlignment="Center" FontSize="35" FontWeight="Bold" />
-        <Button Content="Open Excel File" HorizontalAlignment="Left" Margin="234,180,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
-        <Label Content="Select Sheet" HorizontalAlignment="Left" Margin="111,228,0,0" VerticalAlignment="Top"/>
-        <ComboBox Name="CmbWorkSheet" HorizontalAlignment="Left" Margin="301,228,0,0" VerticalAlignment="Top" Width="211" SelectionChanged="CmbWorkSheet_SelectionChanged"/>
+        <Button Content="Open Excel File" HorizontalAlignment="Left" Margin="114,180,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
         <Label Content="Select Repository" HorizontalAlignment="Left" Margin="111,91,0,0" VerticalAlignment="Top"/>
         <ComboBox Name="CmbRepository" HorizontalAlignment="Left" Margin="297,91,0,0" VerticalAlignment="Top" Width="215" SelectionChanged="CmbRepository_SelectionChanged"/>
         <Label Content="Select Head BranchName" HorizontalAlignment="Left" Margin="111,134,0,0" VerticalAlignment="Top"/>
-        <Label Content="New BranchName" HorizontalAlignment="Left" Margin="111,274,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="302,275,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
-        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Left" Margin="223,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnCreatePR_OnClick"/>
+        <Label Content="New BranchName" HorizontalAlignment="Left" Margin="111,444,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="302,445,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
+        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Left" Margin="223,725,0,0" VerticalAlignment="Top" Width="75" Click="BtnCreatePR_OnClick"/>
         <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="297,134,0,0" VerticalAlignment="Top" Width="215"/>
-        <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="111,380,0,0" VerticalAlignment="Top"/>
-        <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="302,380,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
-        <Button Content="Show File" HorizontalAlignment="Left" Margin="105,555,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
-        <Button Name="BtnExit" Content="Exit" HorizontalAlignment="Left" Margin="467,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnExit_OnClick"/>
-        <Label Content="PR title" HorizontalAlignment="Left" Margin="111,324,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="TxtPRNumber" HorizontalAlignment="Left" Height="23" Margin="302,325,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
-        <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" IsIndeterminate="false"  Margin="111,509,122,82" />
-        <Button Name="BtnReset" Content="Reset" HorizontalAlignment="Left" Margin="345,555,0,0" VerticalAlignment="Top" Width="75" Click="BtnReset_OnClick"/>
+        <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="111,550,0,0" VerticalAlignment="Top"/>
+        <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="302,550,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
+        <Button Content="Show File" HorizontalAlignment="Left" Margin="105,725,0,0" VerticalAlignment="Top" Width="75" Click="BtnShowFile_OnClick"/>
+        <Button Name="BtnExit" Content="Exit" HorizontalAlignment="Left" Margin="467,725,0,0" VerticalAlignment="Top" Width="75" Click="BtnExit_OnClick"/>
+        <Label Content="PR title" HorizontalAlignment="Left" Margin="111,494,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="TxtPRNumber" HorizontalAlignment="Left" Height="23" Margin="302,495,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
+        <!--<ProgressBar Minimum="0" Maximum="100" Name="pbStatus" IsIndeterminate="false"  Margin="111,509,122,82" />-->
+        <Button Name="BtnReset" Content="Reset" HorizontalAlignment="Left" Margin="345,725,0,0" VerticalAlignment="Top" Width="75" Click="BtnReset_OnClick"/>
+        <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" Name="DataGridExcel" HorizontalAlignment="Center" Height="134" Margin="0,228,0,0" VerticalAlignment="Top" Width="465">
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True"  Header="Index" Width="50" Binding="{Binding Path=Id}" />
+                <DataGridTextColumn IsReadOnly="True"  Header="Sheet Name" Width="220" Binding="{Binding Path=SheetName}" />
+                <DataGridTemplateColumn Header="Select" Width="45">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="Action" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Show File" Click="BtnShowMergedFile"></Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn IsReadOnly="True"  Header="Status" Width="80" Binding="{Binding Path=MergeStatus, Mode=TwoWay}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label Name="LblExcelFilePath" Content="fdfd" HorizontalAlignment="Left" Margin="298,174,0,0" VerticalAlignment="Top" Width="211"/>
+        <Button Name="BtnStartMerge" Content="Start Merge" HorizontalAlignment="Left" Margin="285,395,0,0" VerticalAlignment="Top" Width="75" Click="BtnStartMerge_OnClick"/>
+
     </Grid>
 </Window>

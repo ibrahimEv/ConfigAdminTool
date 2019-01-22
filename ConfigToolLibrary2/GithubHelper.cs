@@ -166,13 +166,16 @@ namespace ConfigToolLibrary2
         {
             try
             {
+                List<string> columnsWithType = new List<string>();
                 string temp = tableDefinition.Substring(tableDefinition.IndexOf('(') + 1, tableDefinition.LastIndexOf(')') - tableDefinition.IndexOf('('));
                 string[] col = temp.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var s in col)
                 {
                     string[] lineSeparated = s.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray();
-                    ColumnDefinitionList.Add($"{lineSeparated[0].Trim('[', ']')}::{lineSeparated[1]}");
+                    columnsWithType.Add($"{lineSeparated[0].Trim('[', ']')}::{lineSeparated[1]}");
                 }
+
+                ColumnDefinitionList = columnsWithType;
             }
             catch (Exception ex)
             {
@@ -200,8 +203,8 @@ namespace ConfigToolLibrary2
                 IReadOnlyList<Branch> branches = await _client.Repository.Branch.GetAll(_repositoryId);
 
                 logger.Log(LogLevel.Debug, $"Getting all branches for repository {_repositoryId}");
-               
-                return branches.Select(br=>br.Name).ToList();
+
+                return branches.Select(br => br.Name).ToList();
             }
             catch (Exception ex)
             {

@@ -6,13 +6,13 @@
         xmlns:local="clr-namespace:ConfigToolWPF"
         mc:Ignorable="d"
         Background="#bcc0dd"
-        Title="Merged File" Height="450" Width="800">
+        Height="450" Width="800">
     <Grid>
-        <ScrollViewer Height="300">
-        <TextBlock Name="TxtMergedFile" HorizontalAlignment="Left" Margin="46,19,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="682"
-                   Background="LightGray" Foreground="Blue"/>
+        <ScrollViewer Height="Auto" Margin="50,50,50,100">
+        <TextBlock Name="TxtMergedFile" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" Width="Auto"
+                   Background="LightGray"/>
         </ScrollViewer>
-        <Button Name="BtnClose" Content="Close" Click="BtnClose_OnClick" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="310,380,0,0"/>
+        <Button Name="BtnClose" Content="Close" Click="BtnClose_OnClick" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,50"/>
 
     </Grid>
 </Window>
