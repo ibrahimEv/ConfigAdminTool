@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ConfigToolWPF.Model;
+using Microsoft.Win32;
 
 namespace ConfigToolWPF
 {
@@ -31,7 +32,7 @@ namespace ConfigToolWPF
             InitializeComponent();
             Initialize();
         }
-
+        
         private void Initialize()
         {
             _excelHelper = new ExcelHelper();
@@ -73,7 +74,8 @@ namespace ConfigToolWPF
             if (CmbRepository.SelectedIndex != -1)
             {
                 ShowLoading();
-                string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
+                string githubUserToken = GetGithubToken();
+                //string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
                 _githubHelper = new GithubHelper(CmbRepository.SelectedValue.ToString(), githubUserToken);
                 List<string> allBranches = await _githubHelper.GetAllBranches();
                 CmbBranches.ItemsSource = allBranches;
@@ -122,35 +124,27 @@ namespace ConfigToolWPF
             _excelHelper.CloseExcel();
         }
 
-        private void BtnShowFile_OnClick(object sender, RoutedEventArgs e)
-        {
-            //SubWindow window = new SubWindow();
-
-            //window.TxtMergedFile.Text = string.Join("\n", MergedFile);
-            //window.Show();
-        }
-
         private void ShowLoading()
         {
-            Dispatcher disp = Dispatcher.CurrentDispatcher;
-            new Thread(() =>
-            {
-                // Code executing in other thread
+            //Dispatcher disp = Dispatcher.CurrentDispatcher;
+            //new Thread(() =>
+            //{
+            //    // Code executing in other thread
 
-                // Invoke Main Thread UI updates
-                disp.Invoke(
-                    () =>
-                    {
+            //    // Invoke Main Thread UI updates
+            //    disp.Invoke(
+            //        () =>
+            //        {
 
-                        //pbStatus.IsIndeterminate = true;
-                        this.Opacity = 0.8;
-                    }
-                );
+            //            //pbStatus.IsIndeterminate = true;
+            //            this.Opacity = 0.8;
+            //        }
+            //    );
 
-            }).Start();
-            //this.Dispatcher.Invoke(DispatcherPriority.Render, new Action(delegate() { pbStatus.IsIndeterminate = true; }
-            //));
-            //this.Opacity = 0.8;
+            //}).Start();
+            ////this.Dispatcher.Invoke(DispatcherPriority.Render, new Action(delegate() { pbStatus.IsIndeterminate = true; }
+            ////));
+            this.Opacity = 0.8;
         }
         private void HideLoading()
         {
@@ -171,9 +165,11 @@ namespace ConfigToolWPF
             TxtPRNumber.Text = string.Empty;
             TxtNewBranchName.Text = string.Empty;
             ListReviewers.ItemsSource = null;
+            DataGridExcel.ItemsSource = null;
 
             _excelHelper = new ExcelHelper();
             _mergeFile = new MergeFile();
+            FileDetails = new List<FileDetail>();
         }
 
         private void BtnShowMergedFile(object sender, RoutedEventArgs e)
@@ -210,14 +206,35 @@ namespace ConfigToolWPF
 
                 List<string> sqlFromExcel = _excelHelper.GetSqlFromCurrentSheet(columnMappings);
 
-                MergeFile mf = new MergeFile();
-                List<string> mergedFile = mf.Merge(contentGithubFile, sqlFromExcel);
-                fd.MergedFileContentList = mergedFile;
-
-                sheet.MergeStatus = "Done";
-                DataGridExcel.Items.Refresh();
-                FileDetails.Add(fd);
+                try
+                {
+                    List<string> mergedFile = _mergeFile.Merge(contentGithubFile, sqlFromExcel);
+                    fd.MergedFileContentList = mergedFile;
+                    sheet.MergeStatus = "Done";
+                    DataGridExcel.Items.Refresh();
+                    FileDetails.Add(fd);
+                }
+                catch (Exception)
+                {
+                    sheet.MergeStatus = "Failed";
+                    DataGridExcel.Items.Refresh();
+                }
             }
+        }
+        
+        private string GetGithubToken()
+        {
+            using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Config Admin POC\\Config Admin Automation"))
+            {
+                if (key != null)
+                {
+                    return key.GetValue("GithubToken").ToString();
+                   
+                }
+            }
+
+            throw new Exception("Github token was not found");
+         
         }
     }
 

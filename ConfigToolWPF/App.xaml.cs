@@ -18,6 +18,7 @@ namespace ConfigToolWPF
         {
             MessageBox.Show("Error occurred: " + e.Exception.Message, "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
+            this.MainWindow.Opacity = 1;
         }
     }
 }
