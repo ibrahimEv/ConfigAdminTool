@@ -256,8 +256,8 @@ namespace ConfigToolLibrary2
             this.NewUpdatedSelects.Clear();
             this.PrimaryKey = 0;
             this.Util.ContainsSelect.Clear();
-            this.Util.AfterSelect.Clear();
-            this.Util.BeforeSelect.Clear();
+            //this.Util.AfterSelect.Clear();
+            //this.Util.BeforeSelect.Clear();
             this.Util.WithoutSelect.Clear();
             this.ClearAll(this.DefaultObject);
             this.ClearAll(this.NewAddedObjects);

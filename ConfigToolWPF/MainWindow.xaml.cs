@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -210,6 +211,7 @@ namespace ConfigToolWPF
                 {
                     List<string> mergedFile = _mergeFile.Merge(contentGithubFile, sqlFromExcel);
                     fd.MergedFileContentList = mergedFile;
+                    sheet.IsMerged = true;
                     sheet.MergeStatus = "Done";
                     DataGridExcel.Items.Refresh();
                     FileDetails.Add(fd);
@@ -217,6 +219,7 @@ namespace ConfigToolWPF
                 catch (Exception)
                 {
                     sheet.MergeStatus = "Failed";
+                    sheet.IsMerged = false;
                     DataGridExcel.Items.Refresh();
                 }
             }
@@ -229,12 +232,12 @@ namespace ConfigToolWPF
                 if (key != null)
                 {
                     return key.GetValue("GithubToken").ToString();
-                   
+                       
                 }
             }
-
+                 
             throw new Exception("Github token was not found");
-         
+            
         }
     }
 

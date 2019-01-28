@@ -9,8 +9,8 @@ namespace ConfigToolLibrary2
     public class UtilClass
     {
         public List<string> ContainsSelect { get; set; }
-        public List<string> BeforeSelect { get; set; }
-        public List<string> AfterSelect { get; set; }
+        //public List<string> BeforeSelect { get; set; }
+        //public List<string> AfterSelect { get; set; }
         public List<string> WithoutSelect { get; set; }
         public string InitialPartOfLine;
 
@@ -18,16 +18,16 @@ namespace ConfigToolLibrary2
         {
             ContainsSelect = new List<string>();
             WithoutSelect = new List<string>();
-            AfterSelect = new List<string>();
-            BeforeSelect = new List<string>();
+            //AfterSelect = new List<string>();
+            //BeforeSelect = new List<string>();
         }
 
-        public List<string> GetSelectStatements(List<string> AllLines)
+        public List<string> GetSelectStatements(List<string> allLines)
         {
-            foreach (var line in AllLines)
+            foreach (var line in allLines)
             {
-                var Words = line.Split(',',' ');
-                if (Words[0].Equals(Keywords.SELECT))
+                var words = line.Split(',',' ');
+                if (words[0].Equals(Keywords.SELECT))
                 {
                     ContainsSelect.Add(line);
                 }

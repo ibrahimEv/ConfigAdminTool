@@ -33,10 +33,10 @@ namespace ConfigToolLibrary2
         {
             Dictionary<string, IDictionary<string, object>> ListOFObjects =
                 new Dictionary<string, IDictionary<string, object>>();
-            foreach (var Statement in selectStatements)
+            foreach (var statement in selectStatements)
             {
                 Cnt++;
-                List<string> Property = UtilClass.StringSplitter(Statement);
+                List<string> Property = UtilClass.StringSplitter(statement);
                 if (Property.Count % 2 == 1)
                 {
                     Property.Insert(0,"PrimaryKey"+Cnt);
