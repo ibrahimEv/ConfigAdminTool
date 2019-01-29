@@ -1,21 +1,17 @@
 ﻿using ConfigToolLibrary2;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Threading;
 using ConfigToolWPF.Model;
 using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace ConfigToolWPF
 {
+
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -27,13 +23,14 @@ namespace ConfigToolWPF
 
         private List<FileDetail> FileDetails { get; set; }
         private List<ExcelSheet> ExcelSheets { get; set; }
-
+        public Visibility ShouldVisible { get; set; } 
         public MainWindow()
         {
+            ShouldVisible = Visibility.Hidden;
             InitializeComponent();
             Initialize();
         }
-        
+
         private void Initialize()
         {
             _excelHelper = new ExcelHelper();
@@ -59,7 +56,7 @@ namespace ConfigToolWPF
             {
                 // Open document
                 string excelFileName = dlg.FileName;
-                TxtPRNumber.Text = Regex.Match(excelFileName, @"\d+").Value;
+                TxtPRNumber.Text = Path.GetFileNameWithoutExtension(excelFileName);
                 _excelHelper.LoadWorkBook(excelFileName);
                 var t = _excelHelper.GetAllWorkSheetNames();
                 LblExcelFilePath.Content = excelFileName;
@@ -145,12 +142,15 @@ namespace ConfigToolWPF
             //}).Start();
             ////this.Dispatcher.Invoke(DispatcherPriority.Render, new Action(delegate() { pbStatus.IsIndeterminate = true; }
             ////));
-            this.Opacity = 0.8;
+            //this.Opacity = 0.8;
+            LoaderGrid.Visibility = Visibility.Visible;
         }
         private void HideLoading()
         {
             //pbStatus.IsIndeterminate = false;
-            this.Opacity = 1;
+            //this.Opacity = 1;
+            LoaderGrid.Visibility = Visibility.Hidden;
+
         }
 
         private void BtnExit_OnClick(object sender, RoutedEventArgs e)
@@ -224,7 +224,7 @@ namespace ConfigToolWPF
                 }
             }
         }
-        
+
         private string GetGithubToken()
         {
             using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Config Admin POC\\Config Admin Automation"))
@@ -232,12 +232,12 @@ namespace ConfigToolWPF
                 if (key != null)
                 {
                     return key.GetValue("GithubToken").ToString();
-                       
+
                 }
             }
-                 
+
             throw new Exception("Github token was not found");
-            
+
         }
     }
 
