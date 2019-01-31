@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ConfigToolLibrary2
@@ -56,6 +59,12 @@ namespace ConfigToolLibrary2
         {
             string[] separatingChars = { "SELECT", "AS", ",", "UNION ALL" };
             return line.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        }
+
+        public static string RemoveComments(string code)
+        {
+            var re = @"(@(?:""[^""]*"")+|""(?:[^""\n\\]+|\\.)*""|'(?:[^'\n\\]+|\\.)*')|//.*|/\*(?s:.*?)\*/";
+            return Regex.Replace(code, re, "$1");
         }
     }
 }
