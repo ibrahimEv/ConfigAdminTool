@@ -1,9 +1,13 @@
 ﻿using Octokit;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using ConfigToolLibrary2.Model;
 using NLog;
 
 namespace ConfigToolLibrary2
@@ -16,14 +20,18 @@ namespace ConfigToolLibrary2
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         private static List<string> ColumnDefinitionList { get; set; }
+        private List<GitHubFile> GitHubFiles { get; set; }
+        private List<FileDetailLocal> FileDetailsLocal { get; set; }
         public GithubHelper(string repositoryName, string githubUserToken)
         {
             _repositoryId = GetRepositoryId(repositoryName);
             _client = new GitHubClient(new ProductHeaderValue("ConfigAdmin"))
             {
                 Credentials = new Credentials(githubUserToken)
+                //Credentials = new Credentials("mayuresh-EVH", "MyNameIsNeo_91", AuthenticationType.Basic)
             };
             ColumnDefinitionList = new List<string>();
+
         }
         public async Task<List<string>> GetContentOfFile(string filePath, string branchName)
         {
@@ -126,7 +134,7 @@ namespace ConfigToolLibrary2
             }
         }
 
-        public async Task<string> GetGithubFilePath(string tableName, string repositoryName)
+        public async Task<string> GetGithubFilePath(string tableName, string repositoryName, bool isMergeFile = true)
         {
             try
             {
@@ -140,7 +148,11 @@ namespace ConfigToolLibrary2
                 string path = String.Empty;
                 //check for one or more file
                 if (responSearchCode.TotalCount > 0)
-                    path = responSearchCode.Items.Single(file => file.Name.Equals($"Merge_{tableName}.sql", StringComparison.OrdinalIgnoreCase)).Path;
+                    if (isMergeFile)
+                        path = responSearchCode.Items.Single(file =>
+                            file.Name.Equals($"Merge_{tableName}.sql", StringComparison.OrdinalIgnoreCase)).Path;
+                    else
+                        path = responSearchCode.Items.Single(file => file.Name.Contains(tableName)).Path;
                 return path;
             }
             catch (Exception ex)
@@ -218,7 +230,6 @@ namespace ConfigToolLibrary2
             try
             {
                 IReadOnlyList<User> users = await _client.Repository.Collaborator.GetAll(_repositoryId);
-
                 logger.Log(LogLevel.Debug, $"Getting all branches for repository {_repositoryId}");
 
                 return users.Select(u => u.Login).ToList();
@@ -230,12 +241,70 @@ namespace ConfigToolLibrary2
             }
         }
 
-        public static async Task<string> CreateBranch2()
+        //public async Task CreatePublishFile(string filePath, string branchName, IProgress<string> progress)
+        //{
+        //    GitHubFiles = new List<GitHubFile>();
+        //    var t = ((Octokit.Connection)_client.Connection).GetLastApiInfo().RateLimit;
+
+        //    await GetAllFilesPathForRepository(branchName);
+        //    var t2 = ((Octokit.Connection)_client.Connection).GetLastApiInfo().RateLimit;
+        //    IReadOnlyList<RepositoryContent> responseContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, filePath, branchName);
+        //    List<string> sqlNameList = responseContent[0].Content.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        //    int count = 1;
+        //    foreach (var sqlName in sqlNameList)
+        //    {
+        //        count++;
+        //        if (string.IsNullOrWhiteSpace(sqlName)) continue;
+        //        if (!sqlName.Contains('\\')) continue;
+        //        string sqlName1 = sqlName.Substring(sqlName.LastIndexOf('\\') + 1);
+
+        //        string sqlFilePath = GitHubFiles.Single(f => f.Name.Equals(sqlName1)).Path;
+        //        IReadOnlyList<RepositoryContent> response = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, sqlFilePath, branchName);
+        //        string fileContent = response[0].Content;
+
+        //        File.AppendAllText(@"D:\PublishFile\test.txt", fileContent +"\n");
+
+        //        progress.Report("Started " + sqlName1);
+        //        if (count == 50) break;
+        //    }
+        //}
+
+        //public async Task<string> GetGithubFilePathForFileName(string fileName, string repositoryName)
+        //{
+        //    try
+        //    {
+        //        SearchCodeRequest searchCodeRequest;
+        //        if (repositoryName == "Test")
+        //            searchCodeRequest = new SearchCodeRequest("Select", "mayuresh-evh", repositoryName);
+        //        else
+        //            searchCodeRequest = new SearchCodeRequest("Select", "Evolent-Health", repositoryName);
+
+        //        //logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
+
+        //        searchCodeRequest.FileName = fileName;
+
+        //        var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
+        //        string path = String.Empty;
+        //        //check for one or more file
+        //        if (responSearchCode.TotalCount > 0)
+        //            path = responSearchCode.Items.Single(file => file.Name.Equals(fileName)).Path;
+        //        return path;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //logger.Log(LogLevel.Error, $"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}. Exception : {ex.Message}");
+        //        throw;
+        //    }
+        //}
+
+        public async Task<string> CreateBranch2()
         {
 
             var request = new SearchCodeRequest("testing", "mayuresh-EVH", "Test");
             var request1 = new SearchCodeRequest("BatchStatus", "Evolent-Health", "user-admin-data");
             var r = await _client.Search.SearchCode(request1);
+            var t = await _client.Repository.Content.GetAllContents(159133156);
+            //var t = await _client.Repository.Content.
             //var tokenAuth = new Credentials("677ce1644a694de2812bbe5c684251e8eff4f745");
 
             //var client = new GitHubClient(new ProductHeaderValue("Github"));
@@ -266,6 +335,129 @@ namespace ConfigToolLibrary2
             return "";
 
 
+        }
+
+        public async Task<string> GetContentOfFileTest(IProgress<int> progress)
+        {
+            try
+            {
+                logger.Log(LogLevel.Debug, $"Getting content from Github.");
+
+                var request = new SearchCodeRequest("testing", "mayuresh-EVH", "Test");
+                var r = await _client.Search.SearchCode(request);
+                for (int i = 0; i < 100; i++)
+                {
+                    Thread.Sleep(100);
+                    progress.Report(i);
+                }
+                return r.TotalCount.ToString();
+                //string fileContent = response[0].Content;
+
+                //string tableDefinition = response[0].Content.Substring(fileContent.IndexOf("CREATE TABLE", StringComparison.Ordinal),
+                //    fileContent.IndexOf("INSERT", StringComparison.Ordinal) - fileContent.IndexOf("CREATE TABLE", StringComparison.Ordinal));
+                //LoadColumnDefinition(tableDefinition);
+
+
+                //var regex = new Regex("\'(.*?)\'");
+                //List<string> fileContentList = fileContent.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.None).ToList();
+
+                //fileContentList = fileContentList.Select(x => regex.Replace(x, m => m.Value.Replace(",", Constants.ReplaceCharsForComma))).ToList();
+
+                //return fileContentList;
+            }
+            catch (Exception)
+            {
+                //logger.Log(LogLevel.Error, $"Error in GetContentOfFile, filePath : {filePath}, branchName : {branchName}. Exception : {ex.Message}");
+                throw;
+            }
+        }
+
+        //public async Task GetAllFilesPathForRepository(string branchName, string dirPath = "")
+        //{
+        //    IReadOnlyList<RepositoryContent> filesContent;
+        //    if (dirPath == "")
+        //        filesContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, branchName);
+        //    else
+        //    {
+        //        filesContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, dirPath, branchName);
+
+        //    }
+        //    foreach (var fileContent in filesContent)
+        //    {
+        //        if (fileContent.Type == ContentType.Dir)
+        //        {
+        //            await GetAllFilesPathForRepository(branchName, fileContent.Path);
+        //            //var filesContent2 = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, fileContent.Path, branchName);
+
+        //        }
+
+        //        GitHubFiles.Add(new GitHubFile() { Name = fileContent.Name, Path = fileContent.Path });
+        //    }
+        //}
+
+        public List<FileDetailLocal> GetAllSqlFilesForDirectory(string dirPath)
+        {
+            return Common.GetAllSqlFilesFromDir(dirPath);
+        }
+
+        public async Task CreatePublishFile2(PublishFileDetails publishFile, string branchName, List<FileDetail> fileDetails, IProgress<string> progress)
+        {
+            GitHubFiles = new List<GitHubFile>();
+            FileDetailsLocal = GetAllSqlFilesForDirectory(publishFile.LocalRepoPath);
+
+            if (File.Exists(publishFile.OutputFilePath)) File.Delete(publishFile.OutputFilePath);
+            File.AppendAllText(publishFile.OutputFilePath, publishFile.DefaultContent + "\n");
+
+            var t = ((Octokit.Connection)_client.Connection).GetLastApiInfo().RateLimit;
+
+            IReadOnlyList<RepositoryContent> responseContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, publishFile.GithubFilePath, branchName);
+            //remove all comments in publish file
+            List<string> sqlNameList = responseContent[0].Content.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            int count = 1;
+            try
+            {
+                foreach (var sqlName in sqlNameList)
+                {
+                    count++;
+                    if (string.IsNullOrWhiteSpace(sqlName)) continue;
+                    if (!sqlName.Contains('\\')) continue;
+                    string sqlName1 = sqlName.Substring(sqlName.LastIndexOf('\\') + 1);
+                    var test = FileDetailsLocal.Where(f => f.Name.Contains(sqlName1.Trim())).ToList();
+                    string fileContent = string.Empty;
+                    if (fileDetails.Any(fd =>
+                        fd.GithubFilePath.Contains(sqlName.Substring(sqlName.IndexOf(@".\") + 2).Replace('\\', '/').Trim())))
+                    {
+                        var test1 = fileDetails.Single(fd =>
+                            fd.GithubFilePath.Contains(sqlName.Substring(sqlName.IndexOf(@".\") + 2).Replace('\\', '/').Trim())).MergedFileContentList;
+                        fileContent = string.Join("\n", test1);
+                    }
+                    else
+                    {
+
+                        string path = string.Empty;
+                        if (test.Count > 1)
+                        {
+                            path = test.Single(f => f.Path.Contains(sqlName.Substring(sqlName.IndexOf(@".\") + 2).Trim())).Path;
+                        }
+                        else
+                            path = FileDetailsLocal.Single(f => f.Name.Equals(sqlName1.Trim(), StringComparison.OrdinalIgnoreCase)).Path;
+
+                        fileContent = File.ReadAllText(path);
+
+                    }
+
+                    File.AppendAllText(publishFile.OutputFilePath, fileContent + "\n");
+
+                    progress.Report("Started " + sqlName1);
+                    //Thread.Sleep(100);
+                    //if (count == 100) break;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
     }
 }

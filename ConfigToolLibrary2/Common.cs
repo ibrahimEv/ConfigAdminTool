@@ -1,6 +1,8 @@
 ﻿using NLog;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ConfigToolLibrary2
 {
@@ -43,6 +45,16 @@ namespace ConfigToolLibrary2
             }
 
             return columnMapping;
+        }
+
+        public static List<FileDetailLocal> GetAllSqlFilesFromDir(string dirPath)
+        {
+            List<FileDetailLocal> sqlFileDetails = Directory.GetFiles(dirPath, "*.sql", SearchOption.AllDirectories).Select(x=>new FileDetailLocal()
+            {
+                Name = Path.GetFileName(x), Path = x
+            }).ToList();
+            var t = sqlFileDetails.Where(x => x.Name == "Merge_AuditActionType.sql");
+            return sqlFileDetails;
         }
     }
 

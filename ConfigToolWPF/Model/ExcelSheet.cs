@@ -10,7 +10,7 @@ namespace ConfigToolWPF.Model
     {
         public int Id { get; set; }
         public string SheetName { get; set; }
-        public bool IsSelected { get; set; }
+        public bool IsSelected { get; set; } = true;
         public bool IsMerged { get; set; }
         public string MergeStatus { get; set; } = "Not Merged";
     }

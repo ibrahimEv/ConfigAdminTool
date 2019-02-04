@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using ConfigToolLibrary2.Model;
 
 namespace ConfigToolWPF
 {
@@ -23,7 +25,7 @@ namespace ConfigToolWPF
 
         private List<FileDetail> FileDetails { get; set; }
         private List<ExcelSheet> ExcelSheets { get; set; }
-        public Visibility ShouldVisible { get; set; } 
+        public Visibility ShouldVisible { get; set; }
         public MainWindow()
         {
             ShouldVisible = Visibility.Hidden;
@@ -124,33 +126,11 @@ namespace ConfigToolWPF
 
         private void ShowLoading()
         {
-            //Dispatcher disp = Dispatcher.CurrentDispatcher;
-            //new Thread(() =>
-            //{
-            //    // Code executing in other thread
-
-            //    // Invoke Main Thread UI updates
-            //    disp.Invoke(
-            //        () =>
-            //        {
-
-            //            //pbStatus.IsIndeterminate = true;
-            //            this.Opacity = 0.8;
-            //        }
-            //    );
-
-            //}).Start();
-            ////this.Dispatcher.Invoke(DispatcherPriority.Render, new Action(delegate() { pbStatus.IsIndeterminate = true; }
-            ////));
-            //this.Opacity = 0.8;
             LoaderGrid.Visibility = Visibility.Visible;
         }
         private void HideLoading()
         {
-            //pbStatus.IsIndeterminate = false;
-            //this.Opacity = 1;
             LoaderGrid.Visibility = Visibility.Hidden;
-
         }
 
         private void BtnExit_OnClick(object sender, RoutedEventArgs e)
@@ -238,6 +218,13 @@ namespace ConfigToolWPF
 
             throw new Exception("Github token was not found");
 
+        }
+
+        private void BtnCreatePublishFile_OnClick(object sender, RoutedEventArgs e)
+        {
+            PublishFIle publishWindow = new PublishFIle(CmbRepository.SelectedValue.ToString(),
+                CmbBranches.SelectedValue.ToString(), _githubHelper, FileDetails);
+            publishWindow.Show();
         }
     }
 

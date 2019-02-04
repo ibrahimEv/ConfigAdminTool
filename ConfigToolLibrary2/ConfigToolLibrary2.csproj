@@ -58,9 +58,13 @@
     <Compile Include="Common.cs" />
     <Compile Include="ExcelHelper.cs" />
     <Compile Include="Factory.cs" />
+    <Compile Include="FileDetail.cs" />
+    <Compile Include="GithubFile.cs" />
     <Compile Include="GithubHelper.cs" />
     <Compile Include="Keywords.cs" />
     <Compile Include="MergeFile.cs" />
+    <Compile Include="Model\FileDetail.cs" />
+    <Compile Include="Model\PublishFileDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpellChecker.cs" />
     <Compile Include="UtilClass.cs" />
@@ -97,6 +101,9 @@
   <ItemGroup>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PublishFileTemplate.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>

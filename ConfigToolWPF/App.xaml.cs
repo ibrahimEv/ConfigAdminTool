@@ -16,9 +16,14 @@ namespace ConfigToolWPF
     {
         private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show("Error occurred: " + e.Exception.Message, "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
+            var result = MessageBox.Show("Error occurred: " + e.Exception.Message, "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
-            this.MainWindow.Opacity = 1;
+            if (result == MessageBoxResult.OK)
+            {
+                MainWindow temp = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                temp.LoaderGrid.Visibility = Visibility.Hidden;
+            }
+            
         }
     }
 }

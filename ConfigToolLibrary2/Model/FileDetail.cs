@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConfigToolWPF.Model
+namespace ConfigToolLibrary2.Model
 {
     public class FileDetail
     {
