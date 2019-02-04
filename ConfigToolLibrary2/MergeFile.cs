@@ -163,9 +163,9 @@ namespace ConfigToolLibrary2
             {
                 foreach (var oldObject in oldSelectStatementsObjects)
                 {
-                    if (newObject.Key == oldObject.Key)
+                    if (newObject.Key.Trim() == oldObject.Key.Trim())
                     {
-                        var val = oldSelectStatementsObjects[newObject.Key];
+                        var val = oldSelectStatementsObjects[oldObject.Key];
                         foreach (var newValue in newObject.Value)
                         {
                             foreach (var oldObj in oldObject.Value.ToList())
@@ -179,7 +179,7 @@ namespace ConfigToolLibrary2
 
                         }
 
-                        NewAddedObjects.Remove(oldObject.Key);
+                        NewAddedObjects.Remove(newObject.Key);
                     }
                 }
             }
