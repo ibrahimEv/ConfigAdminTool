@@ -9,15 +9,15 @@
     <Grid>
         <Grid>
             <Label Content="Local Repository" HorizontalAlignment="Left" Margin="36,25,0,0" VerticalAlignment="Top"/>
-            <TextBox Name="TxtLocalRepo" HorizontalAlignment="Left" Height="23" Margin="170,28,0,0" TextWrapping="Wrap" Text="D:\Code\user-admin-data" VerticalAlignment="Top" Width="316"/>
+            <TextBox Name="TxtLocalRepo" HorizontalAlignment="Left" Height="23" Margin="170,28,0,0" TextWrapping="NoWrap" Text="D:\Code\user-admin-data" VerticalAlignment="Top" Width="316"/>
             <Label Content="Database Name" HorizontalAlignment="Left" Margin="36,65,0,0" VerticalAlignment="Top"/>
             <TextBox Name="TxtDatabaseName" HorizontalAlignment="Left" Height="23" Margin="170,68,0,0" TextWrapping="Wrap" Text="UserAdmin" VerticalAlignment="Top" Width="316"/>
             <Label Content="File Path" HorizontalAlignment="Left" Margin="36,105,0,0" VerticalAlignment="Top"/>
             <TextBox Name="TxtFilePath" HorizontalAlignment="Left" Height="23" Margin="170,108,0,0" TextWrapping="Wrap" Text="D:\PublishFile\test.txt" VerticalAlignment="Top" Width="316"/>
             <Label Content="Default Data Path" HorizontalAlignment="Left" Margin="36,145,0,0" VerticalAlignment="Top"/>
-            <TextBox Name="TxtDefaultDataPath" HorizontalAlignment="Left" Height="23" Margin="170,148,0,0" TextWrapping="Wrap" Text="D:\Users\MPenkar\AppData\Local\Microsoft\Microsoft SQL Server Local DB\Instances\MSSQLLocalDB" VerticalAlignment="Top" Width="316"/>
+            <TextBox Name="TxtDefaultDataPath" HorizontalAlignment="Left" Height="23" Margin="170,148,0,0" TextWrapping="NoWrap" Text="D:\Users\MPenkar\AppData\Local\Microsoft\Microsoft SQL Server Local DB\Instances\MSSQLLocalDB" VerticalAlignment="Top" Width="316"/>
             <Label Content="Default Log Path" HorizontalAlignment="Left" Margin="36,185,0,0" VerticalAlignment="Top"/>
-            <TextBox Name="TxtDefaultLogPath" HorizontalAlignment="Left" Height="23" Margin="170,188,0,0" TextWrapping="Wrap" Text="D:\Users\MPenkar\AppData\Local\Microsoft\Microsoft SQL Server Local DB\Instances\MSSQLLocalDB" VerticalAlignment="Top" Width="316"/>
+            <TextBox Name="TxtDefaultLogPath" HorizontalAlignment="Left" Height="23" Margin="170,188,0,0" TextWrapping="NoWrap" Text="D:\Users\MPenkar\AppData\Local\Microsoft\Microsoft SQL Server Local DB\Instances\MSSQLLocalDB" VerticalAlignment="Top" Width="316"/>
             <Button Name="BtnPublish" Content="Publish" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,15" Width="75" Click="BtnPublish_OnClick"/>
             <Button Name="BtnBrowseRepo" Content=". . ." HorizontalAlignment="Left" Margin="461,28,0,0" VerticalAlignment="Top" Width="25" Height="23" Click="BtnBrowseRepo_OnClick"/>
 

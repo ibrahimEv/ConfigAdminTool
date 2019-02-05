@@ -145,6 +145,7 @@ namespace ConfigToolWPF
 
             TxtPRNumber.Text = string.Empty;
             TxtNewBranchName.Text = string.Empty;
+            LblExcelFilePath.Content = string.Empty;
             ListReviewers.ItemsSource = null;
             DataGridExcel.ItemsSource = null;
 

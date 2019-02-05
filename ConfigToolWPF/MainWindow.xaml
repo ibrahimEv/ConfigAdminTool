@@ -16,7 +16,7 @@
             <Label Content="Head Branch Name" HorizontalAlignment="Left" Margin="66,74,0,0" VerticalAlignment="Top"/>
             <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="252,74,0,0" VerticalAlignment="Top" Width="215"/>
             <Button Content="Open Excel File..." HorizontalAlignment="Left" Margin="50,120,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
-            <Label Name="LblExcelFilePath" Content="excel file nameksdf" ToolTip="jkjkljlk" HorizontalAlignment="Left" Margin="220,114,0,0" VerticalAlignment="Top" Width="275"/>
+            <Label Name="LblExcelFilePath" Content="" HorizontalAlignment="Left" Margin="220,114,0,0" VerticalAlignment="Top" Width="275"/>
 
             <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" Name="DataGridExcel" HorizontalAlignment="Center" Height="134"  VerticalAlignment="Top" Width="410" Margin="38,165,38,0" >
                 <DataGrid.Columns>
@@ -50,19 +50,23 @@
 
             <Button Name="BtnStartMerge" Content="Start Merge" HorizontalAlignment="Left" Margin="70,325,0,0" VerticalAlignment="Top" Width="74" Click="BtnStartMerge_OnClick"/>
 
-            <Label Content="New Branch Name" HorizontalAlignment="Left" Margin="66,384,0,0" VerticalAlignment="Top"/>
-            <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="257,385,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
-            <Label Content="PR Title" HorizontalAlignment="Left" Margin="66,419,0,0" VerticalAlignment="Top"/>
-            <TextBox Name="TxtPRNumber" HorizontalAlignment="Left" Height="23" Margin="257,420,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
-            <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="66,475,0,0" VerticalAlignment="Top"/>
-            <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="257,460,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
-
-            <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,30" Width="74" Click="BtnCreatePR_OnClick"/>
+           
             <Button Name="BtnCreatePublishFile" Content="Create Publish File" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,325,70,0" Width="115" Click="BtnCreatePublishFile_OnClick"/>
             <Button Name="BtnReset" Background="#bcc0dd" ToolTip="Reset" HorizontalAlignment="Right"  VerticalAlignment="Top" Margin="0,0,0,0" Height="35" Width="35" Click="BtnReset_OnClick">
                 <Image Source="reset2.png" ></Image>
             </Button>
-            <GroupBox Header="Create Github PR" HorizontalAlignment="Left" BorderBrush="Black"  Height="265" Margin="33,357,0,0" VerticalAlignment="Top" Width="475"/>
+            <GroupBox Header="Create Github PR" HorizontalAlignment="Left" Background="#b1b5d3" BorderBrush="Black"  Height="265" Margin="33,357,0,0" VerticalAlignment="Top" Width="475">
+                <Grid Height="auto" Width="Auto">
+                    <Label Content="New Branch Name" HorizontalAlignment="Left" Margin="15,4,0,0" VerticalAlignment="Top"/>
+                    <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="227,4,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
+                    <Label Content="Pull Request Title" HorizontalAlignment="Left" Margin="15,40,0,0" VerticalAlignment="Top"/>
+                    <TextBox Name="TxtPRNumber" HorizontalAlignment="Left" Height="23" Margin="227,40,0,0" TextWrapping="NoWrap" ToolTip="{Binding this}" Text="" VerticalAlignment="Top" Width="210"/>
+                    <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="15,80,0,0" VerticalAlignment="Top"/>
+                    <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="227,81,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
+
+                    <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="194,0,195,20" Width="74" Click="BtnCreatePR_OnClick"/>
+                </Grid>
+            </GroupBox>
 
         </Grid>
         <Grid Name="LoaderGrid" Visibility="Hidden">
