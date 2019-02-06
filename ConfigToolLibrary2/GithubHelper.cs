@@ -453,7 +453,7 @@ namespace ConfigToolLibrary2
                     //if (count == 100) break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception )
             {
 
                 throw;

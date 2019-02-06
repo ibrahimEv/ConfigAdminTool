@@ -13,7 +13,8 @@ SET NUMERIC_ROUNDABORT OFF;
 
 
 GO
-
+:setvar Environment "{4}"
+:setvar Subscription "{5}"
 :setvar DatabaseName "{0}"
 :setvar DefaultFilePrefix "{1}"
 :setvar DefaultDataPath "{2}"
@@ -38,3 +39,7 @@ IF N'$(__IsSqlCmdEnabled)' NOT LIKE N'True'
 
 GO
 USE [$(DatabaseName)];
+
+GO
+Declare @Environment Varchar(10);
+Set @Environment = '$(Environment)'

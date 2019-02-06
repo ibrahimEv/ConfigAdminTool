@@ -30,10 +30,10 @@
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="Manufacturer" Value="Config Admin POC"/>
-    <ROW Property="ProductCode" Value="1033:{BD275CA5-B520-482F-A50E-7E5BD8292B8A} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{06F7C700-E44C-481A-B99C-D3D01635145A} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Config Admin Automation"/>
-    <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="2.0.0" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{E051828A-CDCD-4583-8A2D-CDC72F80A220}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>

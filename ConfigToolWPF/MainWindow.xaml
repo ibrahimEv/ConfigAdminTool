@@ -8,7 +8,7 @@
         Closed="MainWindow_OnClosed"
         Title="Config Automation" Height="670" Width="550" Background="#bcc0dd"
         >
-
+<ScrollViewer VerticalScrollBarVisibility="Auto">
     <Grid>
         <Grid>
             <Label Content="Repository" HorizontalAlignment="Left" Margin="66,31,0,0" VerticalAlignment="Top"/>
@@ -75,4 +75,5 @@
             <Label Name="LblLoader" Content="Loading..." VerticalAlignment="Center" HorizontalAlignment="Center"></Label>
         </Grid>
     </Grid>
+</ScrollViewer>
 </Window>
