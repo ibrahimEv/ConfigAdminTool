@@ -9,10 +9,14 @@
         Height="450" Width="800">
     <Grid>
         <ScrollViewer Height="Auto" Margin="50,50,50,100">
-        <TextBlock Name="TxtMergedFile" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" Width="Auto"
-                   Background="LightGray"/>
+            <Grid>
+                <TextBlock Name="TxtMergedFile" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" Width="Auto"
+                   Background="LightGray" />
+                <TextBox Name="TxtBoxMergedFile" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" Width="Auto"
+                       Background="LightGray" Visibility="Hidden"/>
+            </Grid>
         </ScrollViewer>
-        <Button Name="BtnClose" Content="Close" Click="BtnClose_OnClick" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,50"/>
+        <Button Name="BtnEdit" Content="Edit" Click="BtnEdit_OnClick" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,50"/>
 
     </Grid>
 </Window>

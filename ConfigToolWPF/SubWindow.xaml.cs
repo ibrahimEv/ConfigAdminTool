@@ -1,4 +1,7 @@
-﻿using ConfigToolLibrary2.Model;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ConfigToolLibrary2.Model;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -10,33 +13,50 @@ namespace ConfigToolWPF
     /// </summary>
     public partial class SubWindow : Window
     {
-        private static FileDetail _fileDetail;
-        public SubWindow(FileDetail fileDetail)
+        private string _tableName;
+        public SubWindow(string tableName)
         {
-            _fileDetail = fileDetail;
-            this.Title = $"Merge_{_fileDetail.TableName}.sql";
+            _tableName = tableName;
+            this.Title = $"Merge_{_tableName}.sql";
             InitializeComponent();
             LoadTextBlock();
         }
 
         private void LoadTextBlock()
         {
-            foreach (var mergedLine in _fileDetail.MergedFileContentList)
+            var fileDetail = MainWindow.FileDetails.SingleOrDefault(fd => fd.TableName == _tableName);
+            var mergedFileContent = fileDetail.MergedFileContentList;
+            TxtBoxMergedFile.Text = string.Join("\n", mergedFileContent);
+            TxtMergedFile.Text = string.Empty;
+            foreach (var mergedLine in mergedFileContent)
             {
-                if (_fileDetail.GithubFileContentList.Contains(mergedLine))
+                if (fileDetail.GithubFileContentList.Contains(mergedLine))
                     TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Blue });
                 else
                 {
                     TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Red });
                 }
             }
-
-
         }
 
-        private void BtnClose_OnClick(object sender, RoutedEventArgs e)
+        private void BtnEdit_OnClick(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            if (BtnEdit.Content.Equals("Edit"))
+            {
+                TxtMergedFile.Visibility = Visibility.Hidden;
+                TxtBoxMergedFile.Visibility = Visibility.Visible;
+                BtnEdit.Content = "Save";
+            }
+            else
+            {
+                List<string> updatedMergeFile = TxtBoxMergedFile.Text.Split(new[] { "\n" }, StringSplitOptions.None).ToList();
+                MainWindow.FileDetails.Single(fd => fd.TableName == _tableName).MergedFileContentList = updatedMergeFile;
+                LoadTextBlock();
+
+                TxtMergedFile.Visibility = Visibility.Visible;
+                TxtBoxMergedFile.Visibility = Visibility.Hidden;
+                BtnEdit.Content = "Edit";
+            }
         }
     }
 }

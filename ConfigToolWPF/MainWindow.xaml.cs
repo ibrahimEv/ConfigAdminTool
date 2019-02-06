@@ -23,7 +23,7 @@ namespace ConfigToolWPF
         private static GithubHelper _githubHelper;
         private static MergeFile _mergeFile;
 
-        private List<FileDetail> FileDetails { get; set; }
+        public static List<FileDetail> FileDetails { get; set; }
         private List<ExcelSheet> ExcelSheets { get; set; }
         public Visibility ShouldVisible { get; set; }
         public MainWindow()
@@ -157,10 +157,8 @@ namespace ConfigToolWPF
         private void BtnShowMergedFile(object sender, RoutedEventArgs e)
         {
             ExcelSheet sheet = ((FrameworkElement)sender).DataContext as ExcelSheet;
-            var mergedFile = FileDetails.SingleOrDefault(fd => fd.TableName == sheet.SheetName);
-            if (mergedFile == null) throw new Exception("File not merged");
 
-            SubWindow window = new SubWindow(mergedFile);
+            SubWindow window = new SubWindow(sheet.SheetName);
             window.Show();
         }
 
