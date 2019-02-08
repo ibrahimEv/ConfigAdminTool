@@ -18,10 +18,13 @@
             <Label Content="Default Log Path" HorizontalAlignment="Left" Height="25" Margin="36,185,0,0" VerticalAlignment="Top"/>
             <TextBox Name="TxtDefaultLogPath" HorizontalAlignment="Left" Height="25" Margin="170,188,0,0" TextWrapping="NoWrap" Text="D:\Users\MPenkar\AppData\Local\Microsoft\Microsoft SQL Server Local DB\Instances\MSSQLLocalDB" VerticalAlignment="Top" Width="316"/>
             <Button Name="BtnPublish" Content="Publish" HorizontalAlignment="Center" Height="23" VerticalAlignment="Bottom" Margin="0,0,0,15" Width="75" Click="BtnPublish_OnClick"/>
-            <Button Name="BtnBrowseRepo" Content=". . ." HorizontalAlignment="Left" Margin="461,28,0,0" VerticalAlignment="Top" Width="25" Height="23" Click="BtnBrowseRepo_OnClick"/>
+            <Button Name="BtnBrowseRepo" Content=". . ." HorizontalAlignment="Left" Margin="461,28,0,0" VerticalAlignment="Top" Width="25" Height="25" Click="BtnBrowseRepo_OnClick"/>
             <TextBox Name="TxtEnvironment" HorizontalAlignment="Left" Height="25" Margin="302,68,0,0" TextWrapping="Wrap" ToolTip="Environment"  Text="Environment" VerticalAlignment="Top" Width="80"/>
             <ComboBox Name="CmbDatabaseName" HorizontalAlignment="Left" Margin="170,68,0,0" Height="25" VerticalAlignment="Top" Width="121" SelectionChanged="CmbDatabaseName_OnSelectionChanged"/>
             <TextBox Name="TxtSubscription" HorizontalAlignment="Left" Height="25" Margin="389,68,0,0" TextWrapping="Wrap" ToolTip="Subscription" Text="Subscription" VerticalAlignment="Top" Width="97"/>
+            <Button Name="BtnBrowseFilePath" Content=". . ." HorizontalAlignment="Left" Margin="461,108,0,0" VerticalAlignment="Top" Width="25" Height="25" Click="BtnBrowseFilePath_OnClick"/>
+            <Button Name="BtnBrowseDefaultDataPath" Content=". . ." HorizontalAlignment="Left" Margin="461,148,0,0" VerticalAlignment="Top" Width="25" Height="25" Click="BtnBrowseDefaultDataPath_OnClick"/>
+            <Button Name="BtnBrowseDefaultLogPath" Content=". . ." HorizontalAlignment="Left" Margin="461,188,0,0" VerticalAlignment="Top" Width="25" Height="25" Click="BtnBrowseDefaultLogPath_OnClick"/>
 
         </Grid>
         <Grid Name="LoaderGrid" Visibility="Hidden" Height="50">

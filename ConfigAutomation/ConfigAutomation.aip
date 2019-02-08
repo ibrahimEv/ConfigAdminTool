@@ -14,8 +14,10 @@
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_NLog.config" Value="..\ConfigToolWPF\bin\Debug"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_NLog.dll" Value="..\packages\NLog.4.5.11\lib\net45"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Octokit.dll" Value="..\packages\Octokit.0.32.0\lib\net45"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_PublishFileTemplate.txt" Value="..\ConfigToolWPF\bin\Debug"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_en_US.aff" Value="..\ConfigToolWPF\bin\Debug"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_en_US.dic" Value="..\ConfigToolWPF\bin\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_reset2.png" Value="..\ConfigToolWPF\bin\Debug"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ConfigToolLibrary2.dll" Value="ConfigToolLibrary2.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ConfigToolWPF.exe" Value="ConfigToolWPF.exe"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ConfigToolWPF.exe.config" Value="ConfigToolWPF.exe.config"/>
@@ -25,8 +27,10 @@
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_NLog.config" Value="NLog.config"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_NLog.dll" Value="NLog.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Octokit.dll" Value="Octokit.dll"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_PublishFileTemplate.txt" Value="PublishFileTemplate.txt"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_en_US.aff" Value="en_US.aff"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_en_US.dic" Value="en_US.dic"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_reset2.png" Value="reset2.png"/>
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="Manufacturer" Value="Config Admin POC"/>
@@ -74,9 +78,11 @@
     <ROW File="NHunspell.dll" Component_="ConfigToolWPF_References" FileName="NHUNSP~2.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_NHunspell.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_NHunspell.dll&gt;" SelfReg="false" NextFile="NLog.dll"/>
     <ROW File="NLog.config" Component_="ConfigToolWPF_ContentOutput" FileName="NLOG~2.CON|[|AI_PROPPATH_FILENAME_PERBUILD_NLog.config]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_NLog.config&gt;" SelfReg="false" NextFile="Hunspellx64.dll"/>
     <ROW File="NLog.dll" Component_="ConfigToolWPF_References" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_NLog.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_NLog.dll&gt;" SelfReg="false" NextFile="Octokit.dll"/>
-    <ROW File="Octokit.dll" Component_="ConfigToolWPF_References" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_Octokit.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Octokit.dll&gt;" SelfReg="false"/>
+    <ROW File="Octokit.dll" Component_="ConfigToolWPF_References" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_Octokit.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Octokit.dll&gt;" SelfReg="false" NextFile="PublishFileTemplate.txt"/>
+    <ROW File="PublishFileTemplate.txt" Component_="ConfigToolWPF_ContentOutput" FileName="PUBLIS~2.TXT|[|AI_PROPPATH_FILENAME_PERBUILD_PublishFileTemplate.txt]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_PublishFileTemplate.txt&gt;" SelfReg="false" NextFile="reset2.png"/>
     <ROW File="en_US.aff" Component_="ConfigToolWPF_ContentOutput" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_en_US.aff]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_en_US.aff&gt;" SelfReg="false" NextFile="en_US.dic"/>
     <ROW File="en_US.dic" Component_="ConfigToolWPF_ContentOutput" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_en_US.dic]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_en_US.dic&gt;" SelfReg="false" NextFile="ConfigToolLibrary2.dll"/>
+    <ROW File="reset2.png" Component_="ConfigToolWPF_ContentOutput" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_reset2.png]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_reset2.png&gt;" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.AppPathsComponent">
     <ROW Name="AI_APPPATH_PERBUILD_ConfigToolLibrary2.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_ConfigToolLibrary2.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_ConfigToolLibrary2.dll]" Type="2" Content="0"/>
@@ -88,8 +94,10 @@
     <ROW Name="AI_APPPATH_PERBUILD_NLog.config" Path="[|AI_PROPPATH_DIR_PERBUILD_NLog.config]\[|AI_PROPPATH_FILENAME_PERBUILD_NLog.config]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_NLog.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_NLog.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_NLog.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Octokit.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Octokit.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Octokit.dll]" Type="2" Content="0"/>
+    <ROW Name="AI_APPPATH_PERBUILD_PublishFileTemplate.txt" Path="[|AI_PROPPATH_DIR_PERBUILD_PublishFileTemplate.txt]\[|AI_PROPPATH_FILENAME_PERBUILD_PublishFileTemplate.txt]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_en_US.aff" Path="[|AI_PROPPATH_DIR_PERBUILD_en_US.aff]\[|AI_PROPPATH_FILENAME_PERBUILD_en_US.aff]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_en_US.dic" Path="[|AI_PROPPATH_DIR_PERBUILD_en_US.dic]\[|AI_PROPPATH_FILENAME_PERBUILD_en_US.dic]" Type="2" Content="0"/>
+    <ROW Name="AI_APPPATH_PERBUILD_reset2.png" Path="[|AI_PROPPATH_DIR_PERBUILD_reset2.png]\[|AI_PROPPATH_FILENAME_PERBUILD_reset2.png]" Type="2" Content="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
@@ -225,5 +233,7 @@
     <ROW ProjectId="{e7cee22b-2b2d-4267-8484-a7b7b46df728}" ProjectName="ConfigToolWPF" OutputGroup="References" OutputFile="NLog.dll"/>
     <ROW ProjectId="{e7cee22b-2b2d-4267-8484-a7b7b46df728}" ProjectName="ConfigToolWPF" OutputGroup="ContentOutput" OutputFile="en_US.aff"/>
     <ROW ProjectId="{e7cee22b-2b2d-4267-8484-a7b7b46df728}" ProjectName="ConfigToolWPF" OutputGroup="References" OutputFile="Octokit.dll"/>
+    <ROW ProjectId="{e7cee22b-2b2d-4267-8484-a7b7b46df728}" ProjectName="ConfigToolWPF" OutputGroup="ContentOutput" OutputFile="PublishFileTemplate.txt"/>
+    <ROW ProjectId="{e7cee22b-2b2d-4267-8484-a7b7b46df728}" ProjectName="ConfigToolWPF" OutputGroup="ContentOutput" OutputFile="reset2.png"/>
   </COMPONENT>
 </DOCUMENT>

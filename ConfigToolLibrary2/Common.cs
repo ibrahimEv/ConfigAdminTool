@@ -1,8 +1,11 @@
-﻿using NLog;
+﻿using System;
+using NLog;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Win32;
 
 namespace ConfigToolLibrary2
 {
@@ -49,12 +52,38 @@ namespace ConfigToolLibrary2
 
         public static List<FileDetailLocal> GetAllSqlFilesFromDir(string dirPath)
         {
-            List<FileDetailLocal> sqlFileDetails = Directory.GetFiles(dirPath, "*.sql", SearchOption.AllDirectories).Select(x=>new FileDetailLocal()
+            List<FileDetailLocal> sqlFileDetails = Directory.GetFiles(dirPath, "*.sql", SearchOption.AllDirectories).Select(x => new FileDetailLocal()
             {
-                Name = Path.GetFileName(x), Path = x
+                Name = Path.GetFileName(x),
+                Path = x
             }).ToList();
             var t = sqlFileDetails.Where(x => x.Name == "Merge_AuditActionType.sql");
             return sqlFileDetails;
+        }
+
+        public static string GetRegistryKeyValue(string registryKey)
+        {
+            using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Config Admin POC\\Config Admin Automation"))
+            {
+                if (key != null)
+                {
+                    var value = key.GetValue(registryKey);
+                    return value != null ? value.ToString() : string.Empty;
+                }
+            }
+            return string.Empty;
+        }
+
+        public static void SetRegistryKeyValue(string registryKey, string value)
+        {
+            using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Config Admin POC\\Config Admin Automation",RegistryKeyPermissionCheck.ReadWriteSubTree,RegistryRights.FullControl))
+            {
+                if (key != null)
+                {
+                    key.SetValue(registryKey, value);
+                }
+                else throw new Exception("Registry path does not exists : Software\\Wow6432Node\\Config Admin POC\\Config Admin Automation");
+            }
         }
     }
 
@@ -63,6 +92,6 @@ namespace ConfigToolLibrary2
         public const int UserAdminDataRepsitoryId = 135317263;
         public const int IdentifiDataRepsitoryId = 50869152;
         public const int TestRepsitoryId = 159133156;
-        public const string ReplaceCharsForComma= "#@$%";
+        public const string ReplaceCharsForComma = "#@$%";
     }
 }

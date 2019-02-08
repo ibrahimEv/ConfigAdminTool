@@ -23,11 +23,20 @@ namespace ConfigToolWPF
         public PublishFIle(string repoName, string branchName, GithubHelper githubHelper, List<FileDetail> fileDetails)
         {
             InitializeComponent();
+            InitializeFields();
             _repoName = repoName;
             _branchName = branchName;
             _githubHelper = githubHelper;
             _fileDetails = fileDetails;
             CmbDatabaseName.ItemsSource = new[] { "UserAdmin", "UtilizationMgmt" };
+        }
+
+        private void InitializeFields()
+        {
+            TxtDefaultDataPath.Text = Common.GetRegistryKeyValue("DefaultDataPath");
+            TxtDefaultLogPath.Text = Common.GetRegistryKeyValue("DefaultDataLogPath");
+            TxtFilePath.Text = Common.GetRegistryKeyValue("PublishFilePath");
+            TxtLocalRepo.Text = Common.GetRegistryKeyValue("LocalRepository");
         }
 
         private async void BtnPublish_OnClick(object sender, RoutedEventArgs e)
@@ -50,17 +59,26 @@ namespace ConfigToolWPF
             string fileContent = File.ReadAllText(@"PublishFileTemplate.txt");
 
             publishFile.DefaultContent = string.Format(fileContent, new[] { databaseName, defaultDataPath, defaultFilePrefix, defaultLogPath, environment, subscription });
-            
+
 
             await _githubHelper.CreatePublishFile2(publishFile, _branchName, _fileDetails, progressOperation);
             HideLoading();
             OnComplete();
         }
 
-        public void OnComplete()
+        private void OnComplete()
         {
+            SaveRegistryValue();
             var res = MessageBox.Show($"Publish File Successfully created at {TxtFilePath.Text}", "Success", MessageBoxButton.OK);
             if (res == MessageBoxResult.OK) this.Close();
+        }
+
+        private void SaveRegistryValue()
+        {
+            Common.SetRegistryKeyValue("DefaultDataPath", TxtDefaultDataPath.Text);
+            Common.SetRegistryKeyValue("DefaultDataLogPath", TxtDefaultLogPath.Text);
+            Common.SetRegistryKeyValue("PublishFilePath", TxtFilePath.Text);
+            Common.SetRegistryKeyValue("LocalRepository", TxtLocalRepo.Text);
         }
 
         private void ShowLoading()
@@ -74,21 +92,23 @@ namespace ConfigToolWPF
 
         private void BtnBrowseRepo_OnClick(object sender, RoutedEventArgs e)
         {
+            TxtLocalRepo.Text = OpenAndSelectFolderBrowser() ?? TxtLocalRepo.Text;
+        }
 
+        private string OpenAndSelectFolderBrowser()
+        {
             using (var fbd = new FolderBrowserDialog())
             {
-
-
                 DialogResult result = fbd.ShowDialog();
 
                 if (!string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    TxtLocalRepo.Text = fbd.SelectedPath;
+                    return fbd.SelectedPath;
                 }
-                else
-                {
-                    throw new Exception("Error selecting folder.");
-                }
+
+                if (result == System.Windows.Forms.DialogResult.Cancel)
+                    return null;
+                throw new Exception("Error selecting folder.");
             }
         }
 
@@ -104,7 +124,22 @@ namespace ConfigToolWPF
                 TxtEnvironment.Visibility = Visibility.Hidden;
                 TxtSubscription.Visibility = Visibility.Hidden;
             }
+        }
 
+        private void BtnBrowseFilePath_OnClick(object sender, RoutedEventArgs e)
+        {
+            string filePath = OpenAndSelectFolderBrowser();
+            TxtFilePath.Text = string.IsNullOrEmpty(filePath) ? TxtFilePath.Text : Path.Combine(filePath, "Publish.sql");
+        }
+
+        private void BtnBrowseDefaultLogPath_OnClick(object sender, RoutedEventArgs e)
+        {
+            TxtDefaultLogPath.Text = OpenAndSelectFolderBrowser() ?? TxtDefaultLogPath.Text;
+        }
+
+        private void BtnBrowseDefaultDataPath_OnClick(object sender, RoutedEventArgs e)
+        {
+            TxtDefaultDataPath.Text = OpenAndSelectFolderBrowser() ?? TxtDefaultDataPath.Text;
         }
     }
 }

@@ -16,8 +16,8 @@ GO
 :setvar Environment "{4}"
 :setvar Subscription "{5}"
 :setvar DatabaseName "{0}"
-:setvar DefaultFilePrefix "{1}"
-:setvar DefaultDataPath "{2}"
+:setvar DefaultFilePrefix "{2}"
+:setvar DefaultDataPath "{1}"
 :setvar DefaultLogPath "{3}"
 
 GO
