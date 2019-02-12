@@ -114,18 +114,31 @@ namespace ConfigToolLibrary2
                 for (int rCnt = 2; rCnt <= rw; rCnt++)
                 {
                     string sqlQuery = "SELECT ";
-                    foreach (var col in columnMapping)
+                    for (int i = 0; i < columnMapping.Count; i++)
                     {
                         var t = (range.Rows[1] as Excel.Range).Text.ToString();
-                        string cellValue = (range.Cells[rCnt, col.Value] as Excel.Range).Text.ToString();
-                        if (col.Key.ToLower().Contains("varchar"))
+                        string cellValue = (range.Cells[rCnt, columnMapping.ElementAt(i).Value] as Excel.Range).Text.ToString();
+                        if (string.IsNullOrEmpty(cellValue) && i != 0) cellValue = "' '";
+                        if (columnMapping.ElementAt(i).Key.ToLower().Contains("varchar"))
                         {
                             cellValue = cellValue.Replace(",", Constants.ReplaceCharsForComma);
-                            sqlQuery += $"'{cellValue}' AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                            sqlQuery += $"'{cellValue}' AS {columnMapping.ElementAt(i).Key.Substring(0, columnMapping.ElementAt(i).Key.IndexOf(':'))}, ";
                         }
                         else
-                            sqlQuery += $"{cellValue} AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                            sqlQuery += $"{cellValue} AS {columnMapping.ElementAt(i).Key.Substring(0, columnMapping.ElementAt(i).Key.IndexOf(':'))}, ";
                     }
+                    //foreach (var col in columnMapping)
+                    //{
+                    //    var t = (range.Rows[1] as Excel.Range).Text.ToString();
+                    //    string cellValue = (range.Cells[rCnt, col.Value] as Excel.Range).Text.ToString();
+                    //    if (col.Key.ToLower().Contains("varchar"))
+                    //    {
+                    //        cellValue = cellValue.Replace(",", Constants.ReplaceCharsForComma);
+                    //        sqlQuery += $"'{cellValue}' AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                    //    }
+                    //    else
+                    //        sqlQuery += $"{cellValue} AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                    //}
                     sqlQuery = sqlQuery.TrimEnd(new[] { ',', ' ' });
                     sqlQuery += " UNION ALL";
                     sqlQueries.Add(sqlQuery);
