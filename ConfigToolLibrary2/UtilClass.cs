@@ -34,6 +34,7 @@ namespace ConfigToolLibrary2
                 if (words[0].Equals(Keywords.SELECT))
                 {
                     ContainsSelect.Add(line);
+
                 }
                 else
                 {
