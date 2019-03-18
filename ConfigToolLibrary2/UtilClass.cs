@@ -29,6 +29,7 @@ namespace ConfigToolLibrary2
         {
             foreach (var line in allLines)
             {
+
                 var words = line.Split(',',' ');
                 if (words[0].Equals(Keywords.SELECT))
                 {
