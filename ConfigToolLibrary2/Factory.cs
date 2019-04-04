@@ -1,81 +1,103 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Vbe.Interop;
-using NLog;
+using System.Text.RegularExpressions;
 
 namespace ConfigToolLibrary2
 {
     public class Factory
     {
-        public bool Flag=false;
-        public int Cnt=0;
+        public bool Flag = false;
+        public int Cnt = 0;
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public static string KeyGenerator(List<string> keys,bool flag01)
+        private static string KeyGenerator(List<string> splitList, bool isCompositeKey)
         {
-            if (flag01 == false)
+            if (!isCompositeKey)
             {
-                return keys[0];
+                return splitList[0].Split(new[] { " AS ", " as " }, StringSplitOptions.None)[0];
             }
-            else
-            {
-                return keys[0] + "X" + keys[2];
-            }
-            
+
+            return splitList[0].Split(new[] { " AS ", " as " }, StringSplitOptions.None)[0] + "X" +
+                   splitList[1].Split(new[] { " AS ", " as " }, StringSplitOptions.None)[0];
+
         }
 
-        public  Dictionary<string, IDictionary<string, object>> GetDynamicObjects(List<string> selectStatements, bool flag01 = false)
+        public Dictionary<string, IDictionary<string, object>> GetDynamicObjects(List<string> selectStatements, bool flag01 = false)
         {
-            Dictionary<string, IDictionary<string, object>> ListOFObjects =
-                new Dictionary<string, IDictionary<string, object>>();
-            foreach (var statement in selectStatements)
+            Dictionary<string, IDictionary<string, object>> listOfObjects = new Dictionary<string, IDictionary<string, object>>();
+            try
             {
-                Cnt++;
-                List<string> Property = UtilClass.StringSplitter(statement);
-                if (Property.Count % 2 == 1)
+                for (var index = 0; index < selectStatements.Count; index++)
                 {
-                    Property.Insert(0,"PrimaryKey"+Cnt);
-                }
+                    var statement = selectStatements[index];
+                    string sql = statement;
+                    var obj = new ExpandoObject() as IDictionary<string, object>;
+                    sql = sql.ReplaceIgnoreCase("SELECT ", " ");
+                    sql = sql.ReplaceIgnoreCase("UNION ALL", string.Empty);
 
-                    var key = KeyGenerator(Property, flag01);
-                    var myObject = new ExpandoObject() as IDictionary<string, object>;
-                    for (int i = 0; i < Property.Count; i++)
+                    //Regex to match comma outside single quotes
+                    Regex regx = new Regex(',' + "(?=(?:[^']*'[^']*')*(?![^']*'))");
+                    string[] lines = regx.Split(sql);
+
+                    //List<string> split = sql.Split(',').ToList();
+
+                    //For primary key//
+
+                    //Regex to match keyword AS outside quotes
+                    regx = new Regex("(?<=^([^']|'[^']*')*) AS ", RegexOptions.IgnoreCase);
+                    string[] strPropertyValueFirst = regx.Split(lines[0]).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+
+                    var propValue = strPropertyValueFirst[0].Trim().Equals(string.Empty) ? "PrimaryKey" + index : strPropertyValueFirst[0].Trim();
+                    obj.Add(strPropertyValueFirst[1].Trim(), $" {propValue} ");
+                    ///////////////////
+
+                    var key = KeyGenerator(lines.ToList(), flag01);
+                    for (int i = 1; i < lines.Length; i++)
                     {
-                        myObject.Add(Property[i + 1], Property[i]);
-                        i++;
+                        //Regex to match keyword AS outside quotes
+                        regx = new Regex("(?<=^([^']|'[^']*')*) AS ", RegexOptions.IgnoreCase);
+                        string[] strPropertyValue = regx.Split(lines[i]).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+
+                        if (strPropertyValue.Length == 3)
+                            obj.Add(strPropertyValue[2].Trim(), $" {strPropertyValue[0].Trim()} ");
+                        else
+                            obj.Add(strPropertyValue[1].Trim(), $" {strPropertyValue[0].Trim()} ");
                     }
 
-                try
-                {
-                    ListOFObjects.Add(key, myObject);
-                }
-                catch
-                {
-                    if (ListOFObjects.First().Key.Contains("X"))
+                    try
                     {
-                        logger.Log(LogLevel.Info, $"File Does Not Contain Primary And Unique Key");
-                        throw  new Exception("File Does Not Contain Primary And Unique Key");
+                        listOfObjects.Add(key, obj);
                     }
-                    this.Flag = true;
-                    ListOFObjects.Clear();
-                    return GetDynamicObjects(selectStatements,this.Flag);
-                  
+                    catch (Exception ex)
+                    {
+                        if (listOfObjects.First().Key.Contains("X"))
+                        {
+                            logger.Log(LogLevel.Info, $"File Does Not Contain Primary And Unique Key");
+                            throw new Exception("File Does Not Contain Primary And Unique Key");
+                        }
+
+                        this.Flag = true;
+                        listOfObjects.Clear();
+                        return GetDynamicObjects(selectStatements, this.Flag);
+
+                    }
                 }
-                    
-                
+
             }
+            catch (Exception ex)
+            {
 
-            var x = ListOFObjects.Last().Value.Last();
-            ListOFObjects.Last().Value.Remove(x.Key);
-            ListOFObjects.Last().Value.Add(x.Key+" ",x.Value);
+                throw;
+            }
+            var x = listOfObjects.Last().Value.Last();
+            listOfObjects.Last().Value.Remove(x.Key);
+            listOfObjects.Last().Value.Add(x.Key + " ", x.Value);
 
-            return ListOFObjects;
+            return listOfObjects;
+
         }
-
     }
 }

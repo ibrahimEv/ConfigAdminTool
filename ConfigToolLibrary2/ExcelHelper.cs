@@ -97,51 +97,50 @@ namespace ConfigToolLibrary2
                 string emptyQuery = "SELECT ";
                 range = CurrentWorksheet.UsedRange;
                 int rw = range.Rows.Count;
-
+                emptyQuery += $" AS {columnMapping.ElementAt(0).Key.Substring(0, columnMapping.ElementAt(0).Key.IndexOf(':'))}, ";
                 //To handle empty rows
-                foreach (var col in columnMapping)
+                for (int i = 1; i < columnMapping.Count; i++)
                 {
-                    if (col.Key.ToLower().Contains("varchar"))
+                    if (columnMapping.ElementAt(i).Key.ToLower().Contains("char"))
                     {
-                        emptyQuery += $"'' AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                        emptyQuery += $"' ' AS {columnMapping.ElementAt(i).Key.Substring(0, columnMapping.ElementAt(i).Key.IndexOf(':'))}, ";
                     }
                     else
-                        emptyQuery += $" AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
+                        emptyQuery += $"' ' AS {columnMapping.ElementAt(i).Key.Substring(0, columnMapping.ElementAt(i).Key.IndexOf(':'))}, ";
                 }
+
                 emptyQuery = emptyQuery.TrimEnd(new[] { ',', ' ' });
                 emptyQuery += " UNION ALL";
 
                 for (int rCnt = 2; rCnt <= rw; rCnt++)
                 {
+                    string rowText = string.Empty;
                     string sqlQuery = "SELECT ";
                     for (int i = 0; i < columnMapping.Count; i++)
                     {
                         var t = (range.Rows[1] as Excel.Range).Text.ToString();
-                        string cellValue = (range.Cells[rCnt, columnMapping.ElementAt(i).Value] as Excel.Range).Text.ToString();
-                        if (string.IsNullOrEmpty(cellValue) && i != 0) cellValue = "' '";
-                        if (columnMapping.ElementAt(i).Key.ToLower().Contains("varchar"))
+                        string cellValue = (range.Cells[rCnt, columnMapping.ElementAt(i).Value] as Excel.Range).Text
+                            .ToString();
+                        rowText += cellValue;
+                        if (columnMapping.ElementAt(i).Key.ToLower().Contains("char"))
                         {
                             cellValue = cellValue.Replace(",", Constants.ReplaceCharsForComma);
-                            sqlQuery += $"'{cellValue}' AS {columnMapping.ElementAt(i).Key.Substring(0, columnMapping.ElementAt(i).Key.IndexOf(':'))}, ";
+                            if (string.IsNullOrEmpty(cellValue) && i != 0) cellValue = " ";
+                            sqlQuery +=
+                                $"'{cellValue}' AS {columnMapping.ElementAt(i).Key.Substring(0, columnMapping.ElementAt(i).Key.IndexOf(':'))}, ";
                         }
                         else
+                        {
+                            if (string.IsNullOrEmpty(cellValue) && i == 0) cellValue = "PrimaryKey" + rCnt;
+                            if (string.IsNullOrEmpty(cellValue) && i != 0) cellValue = "' '";
                             sqlQuery += $"{cellValue} AS {columnMapping.ElementAt(i).Key.Substring(0, columnMapping.ElementAt(i).Key.IndexOf(':'))}, ";
+                        }
                     }
-                    //foreach (var col in columnMapping)
-                    //{
-                    //    var t = (range.Rows[1] as Excel.Range).Text.ToString();
-                    //    string cellValue = (range.Cells[rCnt, col.Value] as Excel.Range).Text.ToString();
-                    //    if (col.Key.ToLower().Contains("varchar"))
-                    //    {
-                    //        cellValue = cellValue.Replace(",", Constants.ReplaceCharsForComma);
-                    //        sqlQuery += $"'{cellValue}' AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
-                    //    }
-                    //    else
-                    //        sqlQuery += $"{cellValue} AS {col.Key.Substring(0, col.Key.IndexOf(':'))}, ";
-                    //}
+
                     sqlQuery = sqlQuery.TrimEnd(new[] { ',', ' ' });
                     sqlQuery += " UNION ALL";
-                    sqlQueries.Add(sqlQuery);
+                    if (!string.IsNullOrWhiteSpace(rowText))
+                        sqlQueries.Add(sqlQuery);
                 }
 
                 sqlQueries.RemoveAll(q => q.Equals(emptyQuery));

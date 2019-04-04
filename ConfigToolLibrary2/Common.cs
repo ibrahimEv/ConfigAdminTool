@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
 using NLog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.Win32;
+using System.Text.RegularExpressions;
 
 namespace ConfigToolLibrary2
 {
@@ -76,7 +76,7 @@ namespace ConfigToolLibrary2
 
         public static void SetRegistryKeyValue(string registryKey, string value)
         {
-            using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Config Admin POC\\Config Admin Automation",RegistryKeyPermissionCheck.ReadWriteSubTree,RegistryRights.FullControl))
+            using (RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Config Admin POC\\Config Admin Automation", RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.FullControl))
             {
                 if (key != null)
                 {
@@ -93,5 +93,13 @@ namespace ConfigToolLibrary2
         public const int IdentifiDataRepsitoryId = 50869152;
         public const int TestRepsitoryId = 159133156;
         public const string ReplaceCharsForComma = "#@$%";
+    }
+
+    public static class StringExtension
+    {
+        public static string ReplaceIgnoreCase(this string str, string oldValue, string newValue)
+        {
+            return Regex.Replace(str, oldValue, newValue, RegexOptions.IgnoreCase);
+        }
     }
 }
