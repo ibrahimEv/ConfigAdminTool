@@ -23,8 +23,11 @@ namespace ConfigToolLibrary2
             {
                 var words = line.Split(',', ' ');
                 if (words[0].Equals(Keywords.SELECT, StringComparison.OrdinalIgnoreCase))
+
+
                 {
                     ContainsSelect.Add(line);
+
                 }
                 else
                 {
