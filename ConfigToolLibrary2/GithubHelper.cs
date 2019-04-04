@@ -412,7 +412,8 @@ namespace ConfigToolLibrary2
 
             IReadOnlyList<RepositoryContent> responseContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, publishFile.GithubFilePath, branchName);
             //remove all comments in publish file
-            List<string> sqlNameList = responseContent[0].Content.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            string contentWithoutComments = UtilClass.RemoveComments(responseContent[0].Content);
+            List<string> sqlNameList = contentWithoutComments.Split(new[] { "\n", "\r\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList();
             int count = 1;
             try
             {
@@ -449,8 +450,6 @@ namespace ConfigToolLibrary2
                     File.AppendAllText(publishFile.OutputFilePath, fileContent + "\n");
 
                     progress.Report("Started " + sqlName1);
-                    //Thread.Sleep(100);
-                    //if (count == 100) break;
                 }
             }
             catch (Exception )

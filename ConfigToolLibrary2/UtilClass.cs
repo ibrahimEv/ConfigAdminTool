@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ConfigToolLibrary2
 {
     public class UtilClass
     {
         public List<string> ContainsSelect { get; set; }
-        //public List<string> BeforeSelect { get; set; }
-        //public List<string> AfterSelect { get; set; }
         public List<string> WithoutSelect { get; set; }
         public string InitialPartOfLine;
 
@@ -21,16 +15,14 @@ namespace ConfigToolLibrary2
         {
             ContainsSelect = new List<string>();
             WithoutSelect = new List<string>();
-            //AfterSelect = new List<string>();
-            //BeforeSelect = new List<string>();
         }
 
         public List<string> GetSelectStatements(List<string> allLines)
         {
             foreach (var line in allLines)
             {
-                var words = line.Split(',',' ');
-                if (words[0].Equals(Keywords.SELECT))
+                var words = line.Split(',', ' ');
+                if (words[0].Equals(Keywords.SELECT, StringComparison.OrdinalIgnoreCase))
                 {
                     ContainsSelect.Add(line);
                 }
@@ -47,11 +39,11 @@ namespace ConfigToolLibrary2
             string newLine = Keywords.SELECT;
             foreach (var obj in latestObj)
             {
-                newLine = newLine + obj.Value + "AS" + obj.Key + ",";
+                newLine += $" {obj.Value.ToString().Trim()} AS {obj.Key.Trim()},";
             }
 
             newLine = newLine.TrimEnd(',');
-            newLine = newLine + Keywords.UNION_ALL;
+            newLine += $" {Keywords.UNION_ALL}";
             return newLine;
         }
 

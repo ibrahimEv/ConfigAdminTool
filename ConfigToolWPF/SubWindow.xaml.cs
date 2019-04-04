@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ConfigToolLibrary2.Model;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -25,6 +24,10 @@ namespace ConfigToolWPF
         private void LoadTextBlock()
         {
             var fileDetail = MainWindow.FileDetails.SingleOrDefault(fd => fd.TableName == _tableName);
+
+            string githubFileWithoutSpace = string.Join("\n", fileDetail.GithubFileContentList);
+            githubFileWithoutSpace = githubFileWithoutSpace.Replace(" ", string.Empty);
+
             var mergedFileContent = fileDetail.MergedFileContentList;
             TxtBoxMergedFile.Text = string.Join("\n", mergedFileContent);
             TxtMergedFile.Text = string.Empty;
@@ -34,7 +37,12 @@ namespace ConfigToolWPF
                     TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Blue });
                 else
                 {
-                    TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Red });
+                    if (githubFileWithoutSpace.Contains(mergedLine.Replace(" ", string.Empty)))
+                        TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.DarkOrange });
+                    else if (githubFileWithoutSpace.ToLower().Contains(mergedLine.ToLower().Replace(" ", string.Empty)))
+                        TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.CadetBlue });
+                    else
+                        TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Red });
                 }
             }
         }

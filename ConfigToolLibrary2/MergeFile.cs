@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Security.AccessControl;
-using System.Runtime.Serialization.Formatters.Binary;
-using NLog;
 
 namespace ConfigToolLibrary2
 {
@@ -264,15 +257,13 @@ namespace ConfigToolLibrary2
             this.NewAddedObjects.Clear();
         }
 
-        public void ClearAll(Dictionary<string,IDictionary<string,object>> dictionaryObjs)
+        public void ClearAll(Dictionary<string, IDictionary<string, object>> dictionaryObjs)
         {
             foreach (var obj in dictionaryObjs)
             {
                 obj.Value.Clear();
             }
         }
-
-
     }
 
 }
