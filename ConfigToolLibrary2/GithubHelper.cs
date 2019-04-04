@@ -180,7 +180,8 @@ namespace ConfigToolLibrary2
             {
                 List<string> columnsWithType = new List<string>();
                 string temp = tableDefinition.Substring(tableDefinition.IndexOf('(') + 1, tableDefinition.LastIndexOf(')') - tableDefinition.IndexOf('('));
-                string[] col = temp.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                string[] col = temp.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Where(s=>s.Any(char.IsLetter)).ToArray();
+
                 foreach (var s in col)
                 {
                     string[] lineSeparated = s.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray();
@@ -201,7 +202,8 @@ namespace ConfigToolLibrary2
             switch (repositoryName)
             {
                 case "IdentifiData": return Constants.IdentifiDataRepsitoryId;
-                case "user-admin-data": return Constants.UserAdminDataRepsitoryId;
+                case "user-admin-data": return Constants.UserAdminDataRepsitoryId; 
+                case "um2.0-data": return Constants.UM2_0DataRepsitoryId; 
                 case "Test": return Constants.TestRepsitoryId;
             }
 

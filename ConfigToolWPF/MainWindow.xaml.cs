@@ -37,7 +37,7 @@ namespace ConfigToolWPF
         {
             _excelHelper = new ExcelHelper();
             _mergeFile = new MergeFile();
-            CmbRepository.ItemsSource = new List<string>() { "IdentifiData", "user-admin-data", "Test" };
+            CmbRepository.ItemsSource = new List<string>() { "IdentifiData", "user-admin-data", "um2.0-data", "Test" };
             FileDetails = new List<FileDetail>();
         }
 
@@ -195,7 +195,7 @@ namespace ConfigToolWPF
                     DataGridExcel.Items.Refresh();
                     FileDetails.Add(fd);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     sheet.MergeStatus = "Failed";
                     sheet.IsMerged = false;
