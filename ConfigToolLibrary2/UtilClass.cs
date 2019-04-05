@@ -24,7 +24,6 @@ namespace ConfigToolLibrary2
                 var words = line.Split(',', ' ');
                 if (words[0].Equals(Keywords.SELECT, StringComparison.OrdinalIgnoreCase))
 
-
                 {
                     ContainsSelect.Add(line);
 
@@ -48,12 +47,6 @@ namespace ConfigToolLibrary2
             newLine = newLine.TrimEnd(',');
             newLine += $" {Keywords.UNION_ALL}";
             return newLine;
-        }
-
-        public static List<string> StringSplitter(string line)
-        {
-            string[] separatingChars = { "SELECT", "AS", ",", "UNION ALL" };
-            return line.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         }
 
         public static string RemoveComments(string code)

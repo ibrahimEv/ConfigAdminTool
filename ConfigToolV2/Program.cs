@@ -39,7 +39,7 @@ namespace ConfigToolV2
             githubFilePath = githubHelper.GetGithubFilePath(tableName, repositoryName).Result;
 
             List<string> contentGithubFile = githubHelper.GetContentOfFile(githubFilePath, headBranchName).Result;
-            List<string> sql = githubHelper.GetColumnNames(contentGithubFile);
+            List<string> sql = githubHelper.GetColumnNames();
             List<string> excelCol = excelHelper.GetColumnNames();
             Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
             List<string> sqlFromExcel = excelHelper.GetSqlFromCurrentSheet(columnMappings);

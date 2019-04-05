@@ -28,7 +28,6 @@ namespace ConfigToolLibrary2
             _client = new GitHubClient(new ProductHeaderValue("ConfigAdmin"))
             {
                 Credentials = new Credentials(githubUserToken)
-                //Credentials = new Credentials("mayuresh-EVH", "MyNameIsNeo_91", AuthenticationType.Basic)
             };
             ColumnDefinitionList = new List<string>();
 
@@ -57,7 +56,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in GetContentOfFile, filePath : {filePath}, branchName : {branchName}. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in GetContentOfFile, filePath : {filePath}, branchName : {branchName}");
             }
         }
 
@@ -76,7 +75,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in CreateBranch, mainBranchName : {mainBranchName}, newBranchName : {newBranchName}. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in CreateBranch, mainBranchName : {mainBranchName}, newBranchName : {newBranchName}.");
             }
         }
 
@@ -96,7 +95,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in UpdateFile, filePath : {filePath}, branchName : {branchName}. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in UpdateFile, filePath : {filePath}, branchName : {branchName}.");
             }
         }
 
@@ -113,7 +112,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in CreatePullRequest, pullRequestTitle : {pullRequestTitle}, baseBranchName : {baseBranchName}, newBranchName : {newBranchName}. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in CreatePullRequest, pullRequestTitle : {pullRequestTitle}, baseBranchName : {baseBranchName}, newBranchName : {newBranchName}.");
             }
         }
 
@@ -130,7 +129,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in AddReviewerToPullRequest, prNumber : {prNumber}, reviewers : {string.Join(",", reviewerList)}. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in AddReviewerToPullRequest, prNumber : {prNumber}, reviewers : {string.Join(",", reviewerList)}.");
             }
         }
 
@@ -158,11 +157,11 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}.");
             }
         }
 
-        public List<string> GetColumnNames(List<string> fileContent)
+        public List<string> GetColumnNames()
         {
             try
             {
@@ -171,7 +170,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in GetColumnNames. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in GetColumnNames.");
             }
         }
         public void LoadColumnDefinition(string tableDefinition)
@@ -180,7 +179,7 @@ namespace ConfigToolLibrary2
             {
                 List<string> columnsWithType = new List<string>();
                 string temp = tableDefinition.Substring(tableDefinition.IndexOf('(') + 1, tableDefinition.LastIndexOf(')') - tableDefinition.IndexOf('('));
-                string[] col = temp.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Where(s=>s.Any(char.IsLetter)).ToArray();
+                string[] col = temp.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Where(s => s.Any(char.IsLetter)).ToArray();
 
                 foreach (var s in col)
                 {
@@ -193,7 +192,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in LoadColumnDefinition. Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in LoadColumnDefinition.");
             }
         }
 
@@ -202,8 +201,8 @@ namespace ConfigToolLibrary2
             switch (repositoryName)
             {
                 case "IdentifiData": return Constants.IdentifiDataRepsitoryId;
-                case "user-admin-data": return Constants.UserAdminDataRepsitoryId; 
-                case "um2.0-data": return Constants.UM2_0DataRepsitoryId; 
+                case "user-admin-data": return Constants.UserAdminDataRepsitoryId;
+                case "um2.0-data": return Constants.UM2_0DataRepsitoryId;
                 case "Test": return Constants.TestRepsitoryId;
             }
 
@@ -223,7 +222,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error in GetAllBranches, for repository {_repositoryId} . Exception : {ex.Message}");
-                throw;
+                throw new Exception($"Error in GetAllBranches, for repository {_repositoryId}.");
             }
         }
 
@@ -238,8 +237,8 @@ namespace ConfigToolLibrary2
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"Error in GetAllBranches, for repository {_repositoryId} . Exception : {ex.Message}");
-                throw;
+                logger.Log(LogLevel.Error, $"Error in GetAllCollaborators, for repository {_repositoryId} . Exception : {ex.Message}");
+                throw new Exception($"Error in GetAllCollaborators, for repository {_repositoryId}.");
             }
         }
 
@@ -410,8 +409,6 @@ namespace ConfigToolLibrary2
             if (File.Exists(publishFile.OutputFilePath)) File.Delete(publishFile.OutputFilePath);
             File.AppendAllText(publishFile.OutputFilePath, publishFile.DefaultContent + "\n");
 
-            var t = ((Octokit.Connection)_client.Connection).GetLastApiInfo().RateLimit;
-
             IReadOnlyList<RepositoryContent> responseContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, publishFile.GithubFilePath, branchName);
             //remove all comments in publish file
             string contentWithoutComments = UtilClass.RemoveComments(responseContent[0].Content);
@@ -437,7 +434,7 @@ namespace ConfigToolLibrary2
                     else
                     {
 
-                        string path = string.Empty;
+                        string path;
                         if (test.Count > 1)
                         {
                             path = test.Single(f => f.Path.Contains(sqlName.Substring(sqlName.IndexOf(@".\") + 2).Trim())).Path;
@@ -454,10 +451,10 @@ namespace ConfigToolLibrary2
                     progress.Report("Started " + sqlName1);
                 }
             }
-            catch (Exception )
+            catch (Exception ex)
             {
-
-                throw;
+                logger.Log(LogLevel.Error, $"Error in CreatePublishFile. Exception : {ex.Message}");
+                throw new Exception($"Error in CreatePublishFile.");
             }
         }
     }

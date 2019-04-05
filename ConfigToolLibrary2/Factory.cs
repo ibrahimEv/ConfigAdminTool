@@ -10,8 +10,7 @@ namespace ConfigToolLibrary2
     public class Factory
     {
         public bool Flag = false;
-        public int Cnt = 0;
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         private static string KeyGenerator(List<string> splitList, bool isCompositeKey)
         {
@@ -89,8 +88,7 @@ namespace ConfigToolLibrary2
             }
             catch (Exception ex)
             {
-
-                throw;
+                throw new Exception("Error creating dynamic object.");
             }
             var x = listOfObjects.Last().Value.Last();
             listOfObjects.Last().Value.Remove(x.Key);

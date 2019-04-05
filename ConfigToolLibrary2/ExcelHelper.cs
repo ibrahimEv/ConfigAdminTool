@@ -12,14 +12,14 @@ namespace ConfigToolLibrary2
 {
     public class ExcelHelper
     {
-        public Excel.Worksheet CurrentWorksheet { get; set; }
-        public Dictionary<string, Excel.Worksheet> WorksheetsNames { get; set; }
+        private Excel.Worksheet CurrentWorksheet { get; set; }
+        private Dictionary<string, Excel.Worksheet> WorksheetsNames { get; set; }
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        private Excel.Application xlApp = null;
+        private Excel.Application _xlApp = null;
 
-        private Excel.Workbook xlWorkBook = null;
+        private Excel.Workbook _xlWorkBook = null;
 
-        private Excel.Range range = null;
+        private Excel.Range _range = null;
         //private static Logger ActionLogger = LogManager.GetLogger("Execution");
 
         public void LoadWorkBook(string excelPath)
@@ -29,10 +29,10 @@ namespace ConfigToolLibrary2
             WorksheetsNames = new Dictionary<string, Excel.Worksheet>();
             try
             {
-                xlApp = new Excel.Application();
+                _xlApp = new Excel.Application();
                 logger.Log(LogLevel.Debug, $"Loading excel file : {excelPath}");
-                xlWorkBook = xlApp.Workbooks.Open(excelPath, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-                foreach (Excel.Worksheet worksheet in xlWorkBook.Worksheets)
+                _xlWorkBook = _xlApp.Workbooks.Open(excelPath, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
+                foreach (Excel.Worksheet worksheet in _xlWorkBook.Worksheets)
                 {
                     WorksheetsNames.Add(worksheet.Name, worksheet);
                 }
@@ -41,6 +41,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error loading excel : {excelPath} , exception message : {ex.Message}");
+                throw new Exception("Error in loading excel file " + ex.Message);
             }
         }
 
@@ -61,7 +62,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error selecting sheet at index : {index} , exception message : {ex.Message}");
-                throw;
+                throw new Exception("Error in selecting worksheet at index " + index);
             }
         }
 
@@ -69,15 +70,15 @@ namespace ConfigToolLibrary2
         {
             try
             {
-                range = CurrentWorksheet.UsedRange;
+                _range = CurrentWorksheet.UsedRange;
                 //read first row for column
-                int cl = range.Columns.Count;
+                int cl = _range.Columns.Count;
                 List<string> colNames = new List<string>();
                 for (int cCnt = 1; cCnt <= cl; cCnt++)
                 {
-                    if ((range.Cells[1, cCnt] as Excel.Range).Value2 == null) break;
+                    if ((_range.Cells[1, cCnt] as Excel.Range).Value2 == null) break;
 
-                    colNames.Add((range.Cells[1, cCnt] as Excel.Range).Value2);
+                    colNames.Add((_range.Cells[1, cCnt] as Excel.Range).Value2);
                 }
 
                 return colNames;
@@ -85,7 +86,7 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error getting column names, exception message : {ex.Message}");
-                throw;
+                throw new Exception("Error in getting column names of " + CurrentWorksheet.Name);
             }
         }
 
@@ -95,8 +96,8 @@ namespace ConfigToolLibrary2
             try
             {
                 string emptyQuery = "SELECT ";
-                range = CurrentWorksheet.UsedRange;
-                int rw = range.Rows.Count;
+                _range = CurrentWorksheet.UsedRange;
+                int rw = _range.Rows.Count;
                 emptyQuery += $" AS {columnMapping.ElementAt(0).Key.Substring(0, columnMapping.ElementAt(0).Key.IndexOf(':'))}, ";
                 //To handle empty rows
                 for (int i = 1; i < columnMapping.Count; i++)
@@ -118,8 +119,8 @@ namespace ConfigToolLibrary2
                     string sqlQuery = "SELECT ";
                     for (int i = 0; i < columnMapping.Count; i++)
                     {
-                        var t = (range.Rows[1] as Excel.Range).Text.ToString();
-                        string cellValue = (range.Cells[rCnt, columnMapping.ElementAt(i).Value] as Excel.Range).Text
+                        var t = (_range.Rows[1] as Excel.Range).Text.ToString();
+                        string cellValue = (_range.Cells[rCnt, columnMapping.ElementAt(i).Value] as Excel.Range).Text
                             .ToString();
                         rowText += cellValue;
                         if (columnMapping.ElementAt(i).Key.ToLower().Contains("char"))
@@ -149,15 +150,15 @@ namespace ConfigToolLibrary2
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, $"Error getting sql from sheet, exception message : {ex.Message}");
-                throw;
+                throw new Exception("Error in generating sql from Excel for sheet : " + CurrentWorksheet.Name);
             }
         }
 
         public void CloseExcel()
         {
-            if (xlApp != null)
+            if (_xlApp != null)
             {
-                int hwnd = xlApp.Application.Hwnd;
+                int hwnd = _xlApp.Application.Hwnd;
                 TryKillProcessByMainWindowHwnd(hwnd);
             }
         }

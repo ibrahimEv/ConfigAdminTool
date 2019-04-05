@@ -57,7 +57,6 @@ namespace ConfigToolLibrary2
                 Name = Path.GetFileName(x),
                 Path = x
             }).ToList();
-            var t = sqlFileDetails.Where(x => x.Name == "Merge_AuditActionType.sql");
             return sqlFileDetails;
         }
 

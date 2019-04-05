@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConfigToolWPF.Model
+﻿namespace ConfigToolWPF.Model
 {
     public class ExcelSheet
     {
@@ -13,5 +7,6 @@ namespace ConfigToolWPF.Model
         public bool IsSelected { get; set; } = true;
         public bool IsMerged { get; set; }
         public string MergeStatus { get; set; } = "Not Merged";
+        public string ErrorMessage { get; set; }
     }
 }

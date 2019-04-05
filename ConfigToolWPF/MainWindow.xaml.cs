@@ -180,7 +180,7 @@ namespace ConfigToolWPF
                 List<string> contentGithubFile = await _githubHelper.GetContentOfFile(fd.GithubFilePath, headBranchName);
                 fd.GithubFileContentList = contentGithubFile.Select(c => c.Replace(Constants.ReplaceCharsForComma, ",")).ToList();
 
-                List<string> sql = _githubHelper.GetColumnNames(contentGithubFile);
+                List<string> sql = _githubHelper.GetColumnNames();
                 List<string> excelCol = _excelHelper.GetColumnNames();
                 Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
 
@@ -199,6 +199,7 @@ namespace ConfigToolWPF
                 {
                     sheet.MergeStatus = "Failed";
                     sheet.IsMerged = false;
+                    sheet.ErrorMessage = ex.Message;
                     DataGridExcel.Items.Refresh();
                 }
             }

@@ -44,7 +44,13 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <DataGridTextColumn IsReadOnly="True"  Header="Status" Width="80" Binding="{Binding Path=MergeStatus, Mode=TwoWay}" />
+                        <DataGridTextColumn IsReadOnly="True"  Header="Status"  Width="80" Binding="{Binding Path=MergeStatus, Mode=TwoWay}" >
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="ToolTip" Value="{Binding ErrorMessage}"></Setter>
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
 

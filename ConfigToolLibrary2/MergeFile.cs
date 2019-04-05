@@ -242,7 +242,6 @@ namespace ConfigToolLibrary2
         public void Reset()
         {
             this.ContainsSelect.Clear();
-            this.Factory.Cnt = 0;
             this.Factory.Flag = false;
             this.FinalFile.Clear();
             this.NewAddedSelects.Clear();
