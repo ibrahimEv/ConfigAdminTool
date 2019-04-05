@@ -37,10 +37,13 @@ namespace ConfigToolWPF
                     TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Blue });
                 else
                 {
+                    //only space changes
                     if (githubFileWithoutSpace.Contains(mergedLine.Replace(" ", string.Empty)))
                         TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.DarkOrange });
+                    //Case changes
                     else if (githubFileWithoutSpace.ToLower().Contains(mergedLine.ToLower().Replace(" ", string.Empty)))
                         TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.CadetBlue });
+                    //Add or update
                     else
                         TxtMergedFile.Inlines.Add(new Run(mergedLine + "\n") { Foreground = Brushes.Red });
                 }

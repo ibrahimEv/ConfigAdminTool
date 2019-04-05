@@ -8,72 +8,72 @@
         Closed="MainWindow_OnClosed"
         Title="Config Automation" Height="670" Width="550" Background="#bcc0dd"
         >
-<ScrollViewer VerticalScrollBarVisibility="Auto">
-    <Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid>
-            <Label Content="Repository" HorizontalAlignment="Left" Margin="66,31,0,0" VerticalAlignment="Top"/>
-            <ComboBox Name="CmbRepository" HorizontalAlignment="Left" Margin="252,31,0,0" VerticalAlignment="Top" Width="215" SelectionChanged="CmbRepository_SelectionChanged"/>
-            <Label Content="Head Branch Name" HorizontalAlignment="Left" Margin="66,74,0,0" VerticalAlignment="Top"/>
-            <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="252,74,0,0" VerticalAlignment="Top" Width="215"/>
-            <Button Content="Open Excel File..." HorizontalAlignment="Left" Margin="50,120,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
-            <Label Name="LblExcelFilePath" Content="" HorizontalAlignment="Left" Margin="220,114,0,0" VerticalAlignment="Top" Width="275"/>
+            <Grid HorizontalAlignment="Center">
+                <Label Content="Repository" HorizontalAlignment="Left" Margin="56,31,0,0" VerticalAlignment="Top"/>
+                <ComboBox Name="CmbRepository" HorizontalAlignment="Left" Margin="242,31,0,0" VerticalAlignment="Top" Width="215" SelectionChanged="CmbRepository_SelectionChanged"/>
+                <Label Content="Head Branch Name" HorizontalAlignment="Left" Margin="56,74,0,0" VerticalAlignment="Top"/>
+                <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="242,74,0,0" VerticalAlignment="Top" Width="215"/>
+                <Button Content="Open Excel File..." HorizontalAlignment="Left" Margin="40,120,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
+                <Label Name="LblExcelFilePath" Content="" HorizontalAlignment="Left" Margin="210,114,0,0" VerticalAlignment="Top" Width="275"/>
 
-            <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" Name="DataGridExcel" HorizontalAlignment="Center" Height="134"  VerticalAlignment="Top" Width="410" Margin="38,165,38,0" >
-                <DataGrid.Columns>
-                    <DataGridTextColumn IsReadOnly="True"  Header="Index" Width="40" Binding="{Binding Path=Id}" />
-                    <DataGridTextColumn IsReadOnly="True"  Header="Sheet Name" Width="170" Binding="{Binding Path=SheetName}" >
-                        <DataGridTextColumn.CellStyle>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="ToolTip" Value="{Binding SheetName}"></Setter>
-                            </Style>
-                        </DataGridTextColumn.CellStyle>
-                    </DataGridTextColumn>
-                    <DataGridTemplateColumn Header="Select" Width="45">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" Name="DataGridExcel" HorizontalAlignment="Center" Height="134"  VerticalAlignment="Top" Width="410" Margin="38,165,38,0" >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn IsReadOnly="True"  Header="Index" Width="40" Binding="{Binding Path=Id}" />
+                        <DataGridTextColumn IsReadOnly="True"  Header="Sheet Name" Width="170" Binding="{Binding Path=SheetName}" >
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="ToolTip" Value="{Binding SheetName}"></Setter>
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Header="Select" Width="45">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTemplateColumn Header="Action" Width="60">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Show File" IsEnabled="{Binding Path=IsMerged}" Click="BtnShowMergedFile"></Button>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Action" Width="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Show File" IsEnabled="{Binding Path=IsMerged}" Click="BtnShowMergedFile"></Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTextColumn IsReadOnly="True"  Header="Status" Width="80" Binding="{Binding Path=MergeStatus, Mode=TwoWay}" />
-                </DataGrid.Columns>
-            </DataGrid>
+                        <DataGridTextColumn IsReadOnly="True"  Header="Status" Width="80" Binding="{Binding Path=MergeStatus, Mode=TwoWay}" />
+                    </DataGrid.Columns>
+                </DataGrid>
 
-            <Button Name="BtnStartMerge" Content="Start Merge" HorizontalAlignment="Left" Margin="70,325,0,0" VerticalAlignment="Top" Width="74" Click="BtnStartMerge_OnClick"/>
+                <Button Name="BtnStartMerge" Content="Start Merge" HorizontalAlignment="Left" Margin="60,325,0,0" VerticalAlignment="Top" Width="74" Click="BtnStartMerge_OnClick"/>
 
-           
-            <Button Name="BtnCreatePublishFile" Content="Create Publish File" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,325,70,0" Width="115" Click="BtnCreatePublishFile_OnClick"/>
-            <Button Name="BtnReset" Background="#bcc0dd" ToolTip="Reset" HorizontalAlignment="Right"  VerticalAlignment="Top" Margin="0,0,0,0" Height="35" Width="35" Click="BtnReset_OnClick">
-                <Image Source="reset2.png" ></Image>
-            </Button>
-            <GroupBox Header="Create Github PR" HorizontalAlignment="Left" Background="#b1b5d3" BorderBrush="Black"  Height="265" Margin="33,357,0,0" VerticalAlignment="Top" Width="475">
-                <Grid Height="auto" Width="Auto">
-                    <Label Content="New Branch Name" HorizontalAlignment="Left" Margin="15,4,0,0" VerticalAlignment="Top"/>
-                    <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="227,4,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
-                    <Label Content="Pull Request Title" HorizontalAlignment="Left" Margin="15,40,0,0" VerticalAlignment="Top"/>
-                    <TextBox Name="TxtPRNumber" HorizontalAlignment="Left" Height="23" Margin="227,40,0,0" TextWrapping="NoWrap" ToolTip="{Binding this}" Text="" VerticalAlignment="Top" Width="210"/>
-                    <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="15,80,0,0" VerticalAlignment="Top"/>
-                    <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="227,81,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
 
-                    <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="194,0,195,20" Width="74" Click="BtnCreatePR_OnClick"/>
-                </Grid>
-            </GroupBox>
+                <Button Name="BtnCreatePublishFile" Content="Create Publish File" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,325,80,0" Width="115" Click="BtnCreatePublishFile_OnClick"/>
+                <Button Name="BtnReset" Background="#bcc0dd" ToolTip="Reset" HorizontalAlignment="Right"  VerticalAlignment="Top" Margin="0,0,0,0" Height="35" Width="35" Click="BtnReset_OnClick">
+                    <Image Source="reset2.png" ></Image>
+                </Button>
+                <GroupBox Header="Create Github PR" HorizontalAlignment="Left" Background="#b1b5d3" BorderBrush="Black"  Height="265" Margin="23,357,0,0" VerticalAlignment="Top" Width="475">
+                    <Grid Height="auto" Width="Auto">
+                        <Label Content="New Branch Name" HorizontalAlignment="Left" Margin="15,4,0,0" VerticalAlignment="Top"/>
+                        <TextBox Name="TxtNewBranchName" HorizontalAlignment="Left" Height="23" Margin="227,4,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="210"/>
+                        <Label Content="Pull Request Title" HorizontalAlignment="Left" Margin="15,40,0,0" VerticalAlignment="Top"/>
+                        <TextBox Name="TxtPRNumber" HorizontalAlignment="Left" Height="23" Margin="227,40,0,0" TextWrapping="NoWrap" ToolTip="{Binding this}" Text="" VerticalAlignment="Top" Width="210"/>
+                        <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="15,80,0,0" VerticalAlignment="Top"/>
+                        <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="227,81,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
 
+                        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="184,0,205,20" Width="74" Click="BtnCreatePR_OnClick"/>
+                    </Grid>
+                </GroupBox>
+
+            </Grid>
+            <Grid Name="LoaderGrid" Visibility="Hidden">
+                <Rectangle Name="RectangleWait" Fill="White" Opacity="0.7">
+                </Rectangle>
+                <Label Name="LblLoader" Content="Loading..." VerticalAlignment="Center" HorizontalAlignment="Center"></Label>
+            </Grid>
         </Grid>
-        <Grid Name="LoaderGrid" Visibility="Hidden">
-            <Rectangle Name="RectangleWait" Fill="White" Opacity="0.7">
-            </Rectangle>
-            <Label Name="LblLoader" Content="Loading..." VerticalAlignment="Center" HorizontalAlignment="Center"></Label>
-        </Grid>
-    </Grid>
-</ScrollViewer>
+    </ScrollViewer>
 </Window>
