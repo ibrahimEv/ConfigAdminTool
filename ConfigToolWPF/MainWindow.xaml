@@ -10,9 +10,9 @@
         >
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid>
-            <Grid HorizontalAlignment="Center">
+            <Grid HorizontalAlignment="Center" Margin="20,0,24,0">
                 <Label Content="Repository" HorizontalAlignment="Left" Margin="56,31,0,0" VerticalAlignment="Top"/>
-                <ComboBox Name="CmbRepository" HorizontalAlignment="Left" Margin="242,31,0,0" VerticalAlignment="Top" Width="215" SelectionChanged="CmbRepository_SelectionChanged"/>
+                <ComboBox Name="CmbRepository" DisplayMemberPath="DisplayName" SelectedValuePath="Name" HorizontalAlignment="Left" Margin="242,31,0,0" VerticalAlignment="Top" Width="215" SelectionChanged="CmbRepository_SelectionChanged"/>
                 <Label Content="Head Branch Name" HorizontalAlignment="Left" Margin="56,74,0,0" VerticalAlignment="Top"/>
                 <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="242,74,0,0" VerticalAlignment="Top" Width="215"/>
                 <Button Content="Open Excel File..." HorizontalAlignment="Left" Margin="40,120,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>

@@ -61,6 +61,7 @@
     <Compile Include="PublishFIle.xaml.cs">
       <DependentUpon>PublishFIle.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RepositoryConfigSection.cs" />
     <Compile Include="SubWindow.xaml.cs">
       <DependentUpon>SubWindow.xaml</DependentUpon>
     </Compile>

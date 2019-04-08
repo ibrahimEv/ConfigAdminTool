@@ -3,6 +3,7 @@ using ConfigToolWPF.Model;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -24,6 +25,7 @@ namespace ConfigToolWPF
         private static MergeFile _mergeFile;
 
         public static List<FileDetail> FileDetails { get; set; }
+        public static List<RepositoryDetail> RepositoryDetails { get; set; }
         private List<ExcelSheet> ExcelSheets { get; set; }
         public Visibility ShouldVisible { get; set; }
         public MainWindow()
@@ -37,8 +39,24 @@ namespace ConfigToolWPF
         {
             _excelHelper = new ExcelHelper();
             _mergeFile = new MergeFile();
-            CmbRepository.ItemsSource = new List<string>() { "IdentifiData", "user-admin-data", "um2.0-data", "Test" };
             FileDetails = new List<FileDetail>();
+
+            RepositoryDetails = new List<RepositoryDetail>();
+
+            var config = ConfigurationManager.GetSection("repositoryDetails")
+                as RepositoryConfigSection;
+
+            foreach (RepositoryConfigInstanceElement repoConfig in config.Instances)
+            {
+                RepositoryDetails.Add(new RepositoryDetail()
+                {
+                    Id = repoConfig.Id,
+                    Name = repoConfig.Name,
+                    DisplayName = repoConfig.DisplayName
+                });
+            }
+
+            CmbRepository.ItemsSource = RepositoryDetails;
         }
 
 
@@ -76,7 +94,7 @@ namespace ConfigToolWPF
                 ShowLoading();
                 string githubUserToken = GetGithubToken();
                 //string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
-                _githubHelper = new GithubHelper(CmbRepository.SelectedValue.ToString(), githubUserToken);
+                _githubHelper = new GithubHelper((CmbRepository.SelectedItem as RepositoryDetail).Id, githubUserToken);
                 List<string> allBranches = await _githubHelper.GetAllBranches();
                 CmbBranches.ItemsSource = allBranches;
                 List<string> reviewers = await _githubHelper.GetAllCollaborators();

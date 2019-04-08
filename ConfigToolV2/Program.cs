@@ -26,7 +26,7 @@ namespace ConfigToolV2
 
             //======================
 
-            GithubHelper githubHelper = new GithubHelper(repositoryName, githubUserToken);
+            GithubHelper githubHelper = new GithubHelper(1, githubUserToken);
             excelHelper.LoadWorkBook(excelFilePath);
             List<string> excelSheetNames = excelHelper.GetAllWorkSheetNames();
             int i = 1;

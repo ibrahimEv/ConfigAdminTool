@@ -22,9 +22,10 @@ namespace ConfigToolLibrary2
         private static List<string> ColumnDefinitionList { get; set; }
         private List<GitHubFile> GitHubFiles { get; set; }
         private List<FileDetailLocal> FileDetailsLocal { get; set; }
-        public GithubHelper(string repositoryName, string githubUserToken)
+
+        public GithubHelper(int repositoryId, string githubUserToken)
         {
-            _repositoryId = GetRepositoryId(repositoryName);
+            _repositoryId = repositoryId;
             _client = new GitHubClient(new ProductHeaderValue("ConfigAdmin"))
             {
                 Credentials = new Credentials(githubUserToken)
@@ -196,18 +197,6 @@ namespace ConfigToolLibrary2
             }
         }
 
-        public int GetRepositoryId(string repositoryName)
-        {
-            switch (repositoryName)
-            {
-                case "IdentifiData": return Constants.IdentifiDataRepsitoryId;
-                case "user-admin-data": return Constants.UserAdminDataRepsitoryId;
-                case "um2.0-data": return Constants.UM2_0DataRepsitoryId;
-                case "Test": return Constants.TestRepsitoryId;
-            }
-
-            throw new Exception($"Invalid repository name : {repositoryName}");
-        }
 
         public async Task<List<string>> GetAllBranches()
         {
