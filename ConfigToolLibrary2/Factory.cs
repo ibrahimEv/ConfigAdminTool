@@ -60,7 +60,16 @@ namespace ConfigToolLibrary2
                         regx = new Regex("(?<=^([^']|'[^']*')*) AS ", RegexOptions.IgnoreCase);
                         string[] strPropertyValue = regx.Split(lines[i]).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
-                        if (strPropertyValue.Length == 3)
+                        //"AS" has no space in start
+                        if (strPropertyValue.Length == 1)
+                        {
+                            int indexOfAs = lines[i].TrimEnd().LastIndexOf("AS ", StringComparison.OrdinalIgnoreCase);
+                            string propertyValue = lines[i].Substring(0, indexOfAs);
+                            string propertyName = lines[i].Substring(indexOfAs + 3);
+                            obj.Add(propertyName.Trim(), $" {propertyValue.Trim()} ");
+                        }
+
+                        else if (strPropertyValue.Length == 3)
                             obj.Add(strPropertyValue[2].Trim(), $" {strPropertyValue[0].Trim()} ");
                         else
                             obj.Add(strPropertyValue[1].Trim(), $" {strPropertyValue[0].Trim()} ");

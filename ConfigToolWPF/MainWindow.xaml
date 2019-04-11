@@ -18,7 +18,7 @@
                 <Button Content="Open Excel File..." HorizontalAlignment="Left" Margin="40,120,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
                 <Label Name="LblExcelFilePath" Content="" HorizontalAlignment="Left" Margin="210,114,0,0" VerticalAlignment="Top" Width="275"/>
 
-                <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" Name="DataGridExcel" HorizontalAlignment="Center" Height="134"  VerticalAlignment="Top" Width="410" Margin="38,165,38,0" >
+                <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" CanUserResizeRows="True" Name="DataGridExcel" HorizontalAlignment="Center" Height="155"  VerticalAlignment="Top" Width="410" Margin="44,165,44,0" >
                     <DataGrid.Columns>
                         <DataGridTextColumn IsReadOnly="True"  Header="Index" Width="40" Binding="{Binding Path=Id}" />
                         <DataGridTextColumn IsReadOnly="True"  Header="Sheet Name" Width="170" Binding="{Binding Path=SheetName}" >
@@ -54,10 +54,10 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <Button Name="BtnStartMerge" Content="Start Merge" HorizontalAlignment="Left" Margin="60,325,0,0" VerticalAlignment="Top" Width="74" Click="BtnStartMerge_OnClick"/>
+                <Button Name="BtnStartMerge" Content="Start Merge" HorizontalAlignment="Left" Margin="60,332,0,0" VerticalAlignment="Top" Width="74" Click="BtnStartMerge_OnClick"/>
 
 
-                <Button Name="BtnCreatePublishFile" Content="Create Publish File" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,325,80,0" Width="115" Click="BtnCreatePublishFile_OnClick"/>
+                <Button Name="BtnCreatePublishFile" Content="Create Publish File" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,332,80,0" Width="115" Click="BtnCreatePublishFile_OnClick"/>
                 <Button Name="BtnReset" Background="#bcc0dd" ToolTip="Reset" HorizontalAlignment="Right"  VerticalAlignment="Top" Margin="0,0,0,0" Height="35" Width="35" Click="BtnReset_OnClick">
                     <Image Source="reset2.png" ></Image>
                 </Button>

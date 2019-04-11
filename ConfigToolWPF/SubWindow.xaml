@@ -8,7 +8,7 @@
         Background="#bcc0dd"
         Height="450" Width="800">
     <Grid>
-        <ScrollViewer Height="Auto" Margin="50,50,50,100">
+        <ScrollViewer Height="Auto" Margin="50,89,50,100">
             <Grid>
                 <TextBlock Name="TxtMergedFile" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" Width="Auto"
                    Background="LightGray" />
@@ -17,6 +17,14 @@
             </Grid>
         </ScrollViewer>
         <Button Name="BtnEdit" Content="Edit" Click="BtnEdit_OnClick" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,50"/>
+        <GroupBox Header="Legends" HorizontalAlignment="Left" Height="59" Margin="50,10,0,0" VerticalAlignment="Top" Width="499">
+            <Grid>
+                <Label Content="No Change" HorizontalAlignment="Left" Foreground="Blue" Margin="24,4,0,5" Width="86"/>
+                <Label Content="Space changes" HorizontalAlignment="Left" Foreground="DarkOrange" Margin="112,4,0,5" Width="86"/>
+                <Label Content="Lower case to Upper case" HorizontalAlignment="Left" Foreground="CadetBlue" Margin="219,4,0,5" Width="146"/>
+                <Label Content="Add or remove" HorizontalAlignment="Left" Foreground="Red" Margin="384,4,0,5" Width="101"/>
+            </Grid>
+        </GroupBox>
 
     </Grid>
 </Window>
