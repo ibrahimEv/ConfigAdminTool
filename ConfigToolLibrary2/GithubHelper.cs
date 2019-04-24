@@ -1,14 +1,13 @@
-﻿using Octokit;
+﻿using ConfigToolLibrary2.Model;
+using NLog;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using ConfigToolLibrary2.Model;
-using NLog;
 
 namespace ConfigToolLibrary2
 {
@@ -134,31 +133,38 @@ namespace ConfigToolLibrary2
             }
         }
 
-        public async Task<string> GetGithubFilePath(string tableName, string repositoryName, bool isMergeFile = true)
+        public async Task<string> GetGithubFilePath(string tableName, string repositoryName = "", bool isMergeFile = true)
         {
             try
             {
-                SearchCodeRequest searchCodeRequest;
-                if (repositoryName == "Test")
-                    searchCodeRequest = new SearchCodeRequest(tableName, "mayuresh-evh", repositoryName);
+                if (GitHubFiles.Any(file => file.Name.Equals(tableName)))
+                    return GitHubFiles.SingleOrDefault(file => file.Name == tableName).Path;
                 else
-                    searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
-                logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
-                var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
-                string path = String.Empty;
-                //check for one or more file
-                if (responSearchCode.TotalCount > 0)
-                    if (isMergeFile)
-                        path = responSearchCode.Items.Single(file =>
-                            file.Name.Equals($"Merge_{tableName}.sql", StringComparison.OrdinalIgnoreCase)).Path;
+                {
+                    SearchCodeRequest searchCodeRequest;
+                    if (repositoryName == "Test")
+                        searchCodeRequest = new SearchCodeRequest(tableName, "mayuresh-evh", repositoryName);
                     else
-                        path = responSearchCode.Items.Single(file => file.Name.Contains(tableName)).Path;
-                return path;
+                        searchCodeRequest = new SearchCodeRequest(tableName, "Evolent-Health", repositoryName);
+                    logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
+                    var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
+                    string path = String.Empty;
+                    //check for one or more file
+                    if (responSearchCode.TotalCount > 0)
+                        if (isMergeFile)
+                            path = responSearchCode.Items.Single(file =>
+                                file.Name.Equals($"Merge_{tableName}.sql", StringComparison.OrdinalIgnoreCase)).Path;
+                        else
+                            path = responSearchCode.Items.Single(file => file.Name.Contains(tableName)).Path;
+                    return path;
+                }
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, $"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}. Exception : {ex.Message}");
-                throw new Exception($"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}.");
+                logger.Log(LogLevel.Error,
+                    $"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}. Exception : {ex.Message}");
+                throw new Exception(
+                    $"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}.");
             }
         }
 
@@ -259,33 +265,6 @@ namespace ConfigToolLibrary2
         //    }
         //}
 
-        //public async Task<string> GetGithubFilePathForFileName(string fileName, string repositoryName)
-        //{
-        //    try
-        //    {
-        //        SearchCodeRequest searchCodeRequest;
-        //        if (repositoryName == "Test")
-        //            searchCodeRequest = new SearchCodeRequest("Select", "mayuresh-evh", repositoryName);
-        //        else
-        //            searchCodeRequest = new SearchCodeRequest("Select", "Evolent-Health", repositoryName);
-
-        //        //logger.Log(LogLevel.Debug, $"Get Github FilePath, tableName : {tableName}, repositoryName : {repositoryName}");
-
-        //        searchCodeRequest.FileName = fileName;
-
-        //        var responSearchCode = await _client.Search.SearchCode(searchCodeRequest);
-        //        string path = String.Empty;
-        //        //check for one or more file
-        //        if (responSearchCode.TotalCount > 0)
-        //            path = responSearchCode.Items.Single(file => file.Name.Equals(fileName)).Path;
-        //        return path;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        //logger.Log(LogLevel.Error, $"Error in GetGithubFilePath, tableName : {tableName}, repositoryName : {repositoryName}. Exception : {ex.Message}");
-        //        throw;
-        //    }
-        //}
 
         public async Task<string> CreateBranch2()
         {
@@ -362,29 +341,6 @@ namespace ConfigToolLibrary2
             }
         }
 
-        //public async Task GetAllFilesPathForRepository(string branchName, string dirPath = "")
-        //{
-        //    IReadOnlyList<RepositoryContent> filesContent;
-        //    if (dirPath == "")
-        //        filesContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, branchName);
-        //    else
-        //    {
-        //        filesContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, dirPath, branchName);
-
-        //    }
-        //    foreach (var fileContent in filesContent)
-        //    {
-        //        if (fileContent.Type == ContentType.Dir)
-        //        {
-        //            await GetAllFilesPathForRepository(branchName, fileContent.Path);
-        //            //var filesContent2 = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, fileContent.Path, branchName);
-
-        //        }
-
-        //        GitHubFiles.Add(new GitHubFile() { Name = fileContent.Name, Path = fileContent.Path });
-        //    }
-        //}
-
         public List<FileDetailLocal> GetAllSqlFilesForDirectory(string dirPath)
         {
             return Common.GetAllSqlFilesFromDir(dirPath);
@@ -392,11 +348,13 @@ namespace ConfigToolLibrary2
 
         public async Task CreatePublishFile2(PublishFileDetails publishFile, string branchName, List<FileDetail> fileDetails, IProgress<string> progress)
         {
-            GitHubFiles = new List<GitHubFile>();
+            //GitHubFiles = new List<GitHubFile>();
+            List<string> fileContents = new List<string>();
             FileDetailsLocal = GetAllSqlFilesForDirectory(publishFile.LocalRepoPath);
 
             if (File.Exists(publishFile.OutputFilePath)) File.Delete(publishFile.OutputFilePath);
-            File.AppendAllText(publishFile.OutputFilePath, publishFile.DefaultContent + "\n");
+            fileContents.Add(publishFile.DefaultContent.Trim('\uFEFF', '\u200B'));
+
 
             IReadOnlyList<RepositoryContent> responseContent = await _client.Repository.Content.GetAllContentsByRef(_repositoryId, publishFile.GithubFilePath, branchName);
             //remove all comments in publish file
@@ -431,14 +389,14 @@ namespace ConfigToolLibrary2
                         else
                             path = FileDetailsLocal.Single(f => f.Name.Equals(sqlName1.Trim(), StringComparison.OrdinalIgnoreCase)).Path;
 
-                        fileContent = File.ReadAllText(path);
+                        //fileContent = File.ReadAllText(path,Encoding.UTF8);
+                        fileContent = ReadFile(path);
 
                     }
-
-                    File.AppendAllText(publishFile.OutputFilePath, fileContent + "\n");
-
+                    fileContents.Add(fileContent.Trim('\uFEFF', '\u200B'));
                     progress.Report("Started " + sqlName1);
                 }
+                WriteFile(publishFile.OutputFilePath, fileContents);
             }
             catch (Exception ex)
             {
@@ -446,5 +404,61 @@ namespace ConfigToolLibrary2
                 throw new Exception($"Error in CreatePublishFile.");
             }
         }
+
+        public static string ReadFile(string filePath)
+        {
+            StreamReader sr = new StreamReader(filePath);
+            string fileContent = sr.ReadToEnd();
+            sr.Close();
+            return fileContent;
+        }
+
+        public static void WriteFile(string filePath, List<string> contents)
+        {
+            StreamWriter sw = new StreamWriter(filePath, false);
+            foreach (string content in contents)
+            {
+                sw.Write(content);
+                sw.WriteLine();
+            }
+
+            sw.Close();
+        }
+
+
+        public async Task LoadGithubFileDetailsFromExcel(List<string> fileNameList, string repositoryName)
+        {
+            try
+            {
+                GitHubFiles = new List<GitHubFile>();
+                SearchCodeRequest searchCodeRequest;
+
+                foreach (var fileName in fileNameList)
+                {
+                    searchCodeRequest = new SearchCodeRequest("Select", "Evolent-Health", repositoryName);
+
+                    searchCodeRequest.FileName = fileName;
+
+                    var responseSearchCode = await _client.Search.SearchCode(searchCodeRequest);
+                    string path = String.Empty;
+                    //check for one or more file
+                    if (responseSearchCode.TotalCount > 0)
+                        path = responseSearchCode.Items.SingleOrDefault(file => file.Name.Equals($"Merge_{fileName}.sql")).Path;
+
+                    GitHubFiles.Add(new GitHubFile() { Name = fileName, Path = path });
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogLevel.Error, $"Error in GetGithubFilePathForFileName, repositoryName : {repositoryName}. Exception : {ex.Message}");
+                throw;
+            }
+        }
+
+        public List<string> GetAllAvailableFilesOnGithubFromExcel()
+        {
+            return GitHubFiles.Where(file => !string.IsNullOrEmpty(file.Path)).Select(file => file.Name).ToList();
+        }
+
     }
 }

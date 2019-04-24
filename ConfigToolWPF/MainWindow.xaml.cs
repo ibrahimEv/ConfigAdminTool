@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using ConfigToolLibrary2.Model;
 
 namespace ConfigToolWPF
@@ -60,8 +61,9 @@ namespace ConfigToolWPF
         }
 
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void BtnOpenExcel_OnClick(object sender, RoutedEventArgs e)
         {
+            if (CmbRepository.SelectedIndex == -1) throw new Exception("Please select repository first.");
             ShowLoading();
             // Configure open file dialog box
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
@@ -78,9 +80,22 @@ namespace ConfigToolWPF
                 string excelFileName = dlg.FileName;
                 TxtPRNumber.Text = Path.GetFileNameWithoutExtension(excelFileName);
                 _excelHelper.LoadWorkBook(excelFileName);
-                var t = _excelHelper.GetAllWorkSheetNames();
+                var workSheetNames = _excelHelper.GetAllWorkSheetNames();
+
+                bool autoSelect = Convert.ToBoolean(ConfigurationManager.AppSettings.Get("AutoSelect"));
+
                 LblExcelFilePath.Content = excelFileName;
-                ExcelSheets = t.Select((value, index) => new ExcelSheet() { Id = ++index, SheetName = value }).ToList();
+                if (autoSelect)
+                {
+                    await _githubHelper.LoadGithubFileDetailsFromExcel(workSheetNames, (CmbRepository.SelectedItem as RepositoryDetail).Name);
+                    List<string> availableFilesOnGithub = _githubHelper.GetAllAvailableFilesOnGithubFromExcel();
+                    ExcelSheets = workSheetNames.Select((value, index) => new ExcelSheet { Id = ++index, SheetName = value, IsSelected = availableFilesOnGithub.Contains(value) }).ToList();
+                }
+                else
+                {
+                    ExcelSheets = workSheetNames.Select((value, index) => new ExcelSheet { Id = ++index, SheetName = value, IsSelected = true }).ToList();
+                }
+
                 DataGridExcel.ItemsSource = ExcelSheets;
             }
 
@@ -144,10 +159,12 @@ namespace ConfigToolWPF
 
         private void ShowLoading()
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             LoaderGrid.Visibility = Visibility.Visible;
         }
         private void HideLoading()
         {
+            Mouse.OverrideCursor = Cursors.Arrow;
             LoaderGrid.Visibility = Visibility.Hidden;
         }
 
@@ -158,6 +175,8 @@ namespace ConfigToolWPF
 
         private void BtnReset_OnClick(object sender, RoutedEventArgs e)
         {
+            //Test window = new Test();
+            //window.Show();
             CmbRepository.SelectedIndex = -1;
             CmbBranches.SelectedIndex = -1;
 
@@ -193,7 +212,7 @@ namespace ConfigToolWPF
 
                 string tableName = _excelHelper.SelectWorkSheet(sheet.Id);
                 fd.TableName = tableName;
-                fd.GithubFilePath = await _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString());
+                fd.GithubFilePath = await _githubHelper.GetGithubFilePath(tableName);
 
                 List<string> contentGithubFile = await _githubHelper.GetContentOfFile(fd.GithubFilePath, headBranchName);
                 fd.GithubFileContentList = contentGithubFile.Select(c => c.Replace(Constants.ReplaceCharsForComma, ",")).ToList();

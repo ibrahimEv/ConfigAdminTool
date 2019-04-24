@@ -15,12 +15,14 @@
                 <ComboBox Name="CmbRepository" DisplayMemberPath="DisplayName" SelectedValuePath="Name" HorizontalAlignment="Left" Margin="242,31,0,0" VerticalAlignment="Top" Width="215" SelectionChanged="CmbRepository_SelectionChanged"/>
                 <Label Content="Head Branch Name" HorizontalAlignment="Left" Margin="56,74,0,0" VerticalAlignment="Top"/>
                 <ComboBox Name="CmbBranches" HorizontalAlignment="Left" Margin="242,74,0,0" VerticalAlignment="Top" Width="215"/>
-                <Button Content="Open Excel File..." HorizontalAlignment="Left" Margin="40,120,0,0" VerticalAlignment="Top" Width="131" Click="Button_Click"/>
+                <Button Name="BtnOpenExcel"  Content="Open Excel File..." HorizontalAlignment="Left" Margin="40,120,0,0" VerticalAlignment="Top" Width="131" Click="BtnOpenExcel_OnClick"/>
                 <Label Name="LblExcelFilePath" Content="" HorizontalAlignment="Left" Margin="210,114,0,0" VerticalAlignment="Top" Width="275"/>
 
-                <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" CanUserResizeRows="True" Name="DataGridExcel" HorizontalAlignment="Center" Height="155"  VerticalAlignment="Top" Width="410" Margin="44,165,44,0" >
+                <DataGrid CanUserAddRows="false" AutoGenerateColumns="False" CanUserResizeRows="True" Name="DataGridExcel" HorizontalAlignment="Center" Height="160"  VerticalAlignment="Top" Width="420" Margin="40,165,40,0" >
                     <DataGrid.Columns>
-                        <DataGridTextColumn IsReadOnly="True"  Header="Index" Width="40" Binding="{Binding Path=Id}" />
+                        <DataGridTextColumn IsReadOnly="True"  Header="Index" Width="40" Binding="{Binding Path=Id}" >
+                          
+                        </DataGridTextColumn>
                         <DataGridTextColumn IsReadOnly="True"  Header="Sheet Name" Width="170" Binding="{Binding Path=SheetName}" >
                             <DataGridTextColumn.CellStyle>
                                 <Style TargetType="DataGridCell">
@@ -28,7 +30,7 @@
                                 </Style>
                             </DataGridTextColumn.CellStyle>
                         </DataGridTextColumn>
-                        <DataGridTemplateColumn Header="Select" Width="45">
+                        <DataGridTemplateColumn Header="Select" Width="45" SortMemberPath="IsSelected">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
