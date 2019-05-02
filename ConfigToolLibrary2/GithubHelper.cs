@@ -137,7 +137,7 @@ namespace ConfigToolLibrary2
         {
             try
             {
-                if (GitHubFiles.Any(file => file.Name.Equals(tableName)))
+                if (GitHubFiles != null && GitHubFiles.Any(file => file.Name.Equals(tableName)))
                     return GitHubFiles.SingleOrDefault(file => file.Name == tableName).Path;
                 else
                 {
@@ -435,7 +435,10 @@ namespace ConfigToolLibrary2
 
                 foreach (var fileName in fileNameList)
                 {
-                    searchCodeRequest = new SearchCodeRequest("Select", "Evolent-Health", repositoryName);
+                    if (repositoryName == "Test")
+                        searchCodeRequest = new SearchCodeRequest("Select", "mayuresh-evh", repositoryName);
+                    else
+                        searchCodeRequest = new SearchCodeRequest("Select", "Evolent-Health", repositoryName);
 
                     searchCodeRequest.FileName = fileName;
 

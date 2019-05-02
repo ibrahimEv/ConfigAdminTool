@@ -72,7 +72,8 @@
                         <Label Content="Select Reviewer(s)" HorizontalAlignment="Left" Margin="15,80,0,0" VerticalAlignment="Top"/>
                         <ListBox Name="ListReviewers" HorizontalAlignment="Left" Height="104" Margin="227,81,0,0" SelectionMode="Multiple" VerticalAlignment="Top" Width="210"/>
 
-                        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="184,0,205,20" Width="74" Click="BtnCreatePR_OnClick"/>
+                        <Button Name="BtnCreatePR" Content="Create PR" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,75,20" Width="74" Click="BtnCreatePR_OnClick"/>
+                        <Button Name="BtnCreateBranch" Content="Create Branch" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="75,0,0,20" Width="80" Click="BtnCreateBranch_OnClick"/>
                     </Grid>
                 </GroupBox>
 

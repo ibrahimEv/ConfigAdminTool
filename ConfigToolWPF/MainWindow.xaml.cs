@@ -122,7 +122,7 @@ namespace ConfigToolWPF
         {
             ShowLoading();
 
-            if (FileDetails.Count != 0)
+            //if (FileDetails.Count != 0)
             {
                 string headBranchName = CmbBranches.SelectedValue.ToString();
                 string newBranchName = TxtNewBranchName.Text;
@@ -130,12 +130,6 @@ namespace ConfigToolWPF
                 foreach (var reviewer in ListReviewers.SelectedItems)
                 {
                     reviewerNames.Add(reviewer.ToString());
-                }
-
-                var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
-                foreach (var fileDetail in FileDetails)
-                {
-                    await _githubHelper.UpdateFile(fileDetail.GithubFilePath, string.Join("\n", fileDetail.MergedFileContentList), newBranchName);
                 }
 
                 int prNumber = await _githubHelper.CreatePullRequest(TxtPRNumber.Text, headBranchName, newBranchName);
@@ -147,7 +141,7 @@ namespace ConfigToolWPF
                 MessageBox.Show("PR created successfully with number : " + prNumber, "Success");
             }
 
-            else throw new Exception("Error creating PR no file merged.");
+            //else throw new Exception("Error creating PR no file merged.");
 
             HideLoading();
         }
@@ -210,21 +204,22 @@ namespace ConfigToolWPF
                 sheet.MergeStatus = "In Progress";
                 DataGridExcel.Items.Refresh();
 
-                string tableName = _excelHelper.SelectWorkSheet(sheet.Id);
-                fd.TableName = tableName;
-                fd.GithubFilePath = await _githubHelper.GetGithubFilePath(tableName);
-
-                List<string> contentGithubFile = await _githubHelper.GetContentOfFile(fd.GithubFilePath, headBranchName);
-                fd.GithubFileContentList = contentGithubFile.Select(c => c.Replace(Constants.ReplaceCharsForComma, ",")).ToList();
-
-                List<string> sql = _githubHelper.GetColumnNames();
-                List<string> excelCol = _excelHelper.GetColumnNames();
-                Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
-
-                List<string> sqlFromExcel = _excelHelper.GetSqlFromCurrentSheet(columnMappings);
-
                 try
                 {
+                    string tableName = _excelHelper.SelectWorkSheet(sheet.Id);
+                    fd.TableName = tableName;
+                    fd.GithubFilePath = await _githubHelper.GetGithubFilePath(tableName, CmbRepository.SelectedValue.ToString());
+
+                    List<string> contentGithubFile = await _githubHelper.GetContentOfFile(fd.GithubFilePath, headBranchName);
+                    fd.GithubFileContentList = contentGithubFile.Select(c => c.Replace(Constants.ReplaceCharsForComma, ",")).ToList();
+
+                    List<string> sql = _githubHelper.GetColumnNames();
+                    List<string> excelCol = _excelHelper.GetColumnNames();
+                    Dictionary<string, int> columnMappings = Common.GetColumnMappings(sql, excelCol);
+
+                    List<string> sqlFromExcel = _excelHelper.GetSqlFromCurrentSheet(columnMappings);
+
+
                     List<string> mergedFile = _mergeFile.Merge(contentGithubFile, sqlFromExcel);
                     fd.MergedFileContentList = mergedFile;
                     sheet.IsMerged = true;
@@ -262,6 +257,30 @@ namespace ConfigToolWPF
             PublishFIle publishWindow = new PublishFIle(CmbRepository.SelectedValue.ToString(),
                 CmbBranches.SelectedValue.ToString(), _githubHelper, FileDetails);
             publishWindow.Show();
+        }
+
+        private async void BtnCreateBranch_OnClick(object sender, RoutedEventArgs e)
+        {
+            ShowLoading();
+
+            if (FileDetails.Count != 0)
+            {
+                string headBranchName = CmbBranches.SelectedValue.ToString();
+                string newBranchName = TxtNewBranchName.Text;
+
+
+                var t = await _githubHelper.CreateBranch(headBranchName, newBranchName);
+                foreach (var fileDetail in FileDetails)
+                {
+                    await _githubHelper.UpdateFile(fileDetail.GithubFilePath, string.Join("\n", fileDetail.MergedFileContentList), newBranchName);
+                }
+
+                MessageBox.Show("Branch created successfully and all changes are committed ", "Success");
+            }
+
+            else throw new Exception("Error creating branch no file merged.");
+
+            HideLoading();
         }
     }
 
