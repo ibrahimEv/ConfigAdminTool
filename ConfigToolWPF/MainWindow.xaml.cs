@@ -107,8 +107,8 @@ namespace ConfigToolWPF
             if (CmbRepository.SelectedIndex != -1)
             {
                 ShowLoading();
-                string githubUserToken = GetGithubToken();
-                //string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
+                //string githubUserToken = GetGithubToken();
+                string githubUserToken = ConfigurationManager.AppSettings["GithubUserToken"];
                 _githubHelper = new GithubHelper((CmbRepository.SelectedItem as RepositoryDetail).Id, githubUserToken);
                 List<string> allBranches = await _githubHelper.GetAllBranches();
                 CmbBranches.ItemsSource = allBranches;
